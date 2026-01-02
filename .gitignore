@@ -1,0 +1,14 @@
+# Uni-app 构建输出
+unpackage/
+
+# macOS 系统文件
+.DS_Store
+
+# 编辑器配置
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
