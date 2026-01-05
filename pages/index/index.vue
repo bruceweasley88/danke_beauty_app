@@ -10,14 +10,15 @@
 				</view>
 			</view>
 			<view class="avatar-wrapper">
-				<view class="black-placeholder circle"></view>
+				<image :src="getUserHeadImg()" class="avatar-image" mode="aspectFill"></image>
 			</view>
 		</view>
 
 		<view class="swiper-container">
-			<swiper class="main-banner" circular autoplay interval="3000" indicator-dots indicator-active-color="#09AB4D">
-				<swiper-item v-for="(item, index) in 3" :key="index">
-					<view class="banner-image-box black-placeholder"></view>
+			<swiper class="main-banner" circular :autoplay="bannerList.length > 1" :interval="3000" indicator-dots indicator-active-color="#09AB4D">
+				<swiper-item v-for="(item, index) in bannerList" :key="index">
+					<image v-if="item.image" :src="item.image" class="banner-image" mode="aspectFill"></image>
+					<view v-else class="banner-image-box black-placeholder"></view>
 				</swiper-item>
 			</swiper>
 		</view>
@@ -62,19 +63,37 @@
 </template>
 
 <script>
+import { commonGetIndexBanner } from '@/apis/commonApi.js'
+import { userGetInfo } from '@/apis/userApi.js'
+
 export default {
 	components: {
 
 	},
-	onLoad() {
-
+	onShow() {
+		this.getIndexBanner();
+		this.getUserInfo();
 	},
 	data() {
 		return {
-
+			bannerList: [],
+			userInfo: null
 		}
 	},
 	methods: {
+		async getIndexBanner() {
+			if (!this.bannerList.length) {
+				const res = await commonGetIndexBanner();
+				this.bannerList = res.data || [];
+			}
+		},
+		async getUserInfo() {
+			const userInfo = await userGetInfo();
+			this.userInfo = userInfo.data;
+		},
+		getUserHeadImg() {
+			return this.userInfo?.headImg || '/static/img/icon_photo.webp'
+		},
 		toDevice() {
 			uni.navigateTo({
 				url: '/pages/device/device'
@@ -163,6 +182,12 @@ page {
 			border-radius: 50%;
 		}
 
+		.avatar-image {
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+		}
+
 
 	}
 }
@@ -179,6 +204,11 @@ page {
 		overflow: hidden;
 
 		.banner-image-box {
+			width: 100%;
+			height: 100%;
+		}
+
+		.banner-image {
 			width: 100%;
 			height: 100%;
 		}

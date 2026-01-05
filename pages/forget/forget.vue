@@ -13,8 +13,8 @@
 
 			<view class="form-content">
 				<view class="input-group" v-if="currentTab === 0">
-					<view class="country-code">
-						<text>+86</text>
+					<view class="country-code" @click="showCountryPicker = true">
+						<text>+{{ areaCode }}</text>
 						<uni-icons type="bottom" size="14" color="#1E211F"></uni-icons>
 					</view>
 					<input class="input-field" type="number" placeholder="请输入你的手机号码" placeholder-class="placeholder-style"
@@ -56,15 +56,27 @@
 				</view>
 			</view>
 		</view>
+
+		<CountryPicker :visible="showCountryPicker" v-model="areaCode" @cancel="showCountryPicker = false"
+			@ok="showCountryPicker = false" />
 	</view>
 </template>
 
 <script>
+import CountryPicker from '@/components/country-picker.vue'
+import { updatePsd, updatePsdByEmailCode } from '@/apis/userApi.js'
+import { commonSendSmsCode, commonSendEmailCode } from '@/apis/commonApi.js'
+
 export default {
+	components: {
+		CountryPicker
+	},
 	data() {
 		return {
 			currentTab: 0, // 0: 手机号, 1: 邮箱
 			isAgreed: false,
+			areaCode: '86',
+			showCountryPicker: false,
 			countdown: 0, // 倒计时秒数
 			timer: null, // 定时器
 			formData: {
@@ -76,7 +88,7 @@ export default {
 		};
 	},
 	methods: {
-		sendCode() {
+		async sendCode() {
 			// 如果正在倒计时，不允许再次发送
 			if (this.countdown > 0) {
 				return;
@@ -92,8 +104,23 @@ export default {
 				return;
 			}
 
-			// TODO: 调用发送验证码API
-			console.log('发送验证码到:', contact);
+			uni.showLoading({ title: '发送中...' })
+
+			if (this.currentTab === 0) {
+				// 发送短信验证码
+				await commonSendSmsCode({
+					phone: this.formData.phone,
+					areaCode: this.areaCode
+				})
+			} else {
+				// 发送邮箱验证码
+				await commonSendEmailCode({
+					email: this.formData.email
+				})
+			}
+
+			uni.hideLoading()
+			uni.showToast({ title: '验证码已发送', icon: 'success' })
 
 			// 开始倒计时
 			this.countdown = 60;
@@ -105,7 +132,7 @@ export default {
 				}
 			}, 1000);
 		},
-		handleLogin() {
+		async handleLogin() {
 			if (!this.isAgreed) {
 				uni.showToast({
 					title: '请先同意用户协议',
@@ -113,8 +140,56 @@ export default {
 				});
 				return;
 			}
-			// 登录逻辑...
-			console.log('Login logic here', this.formData);
+
+			const { phone, email, code, password } = this.formData
+
+			// 验证验证码
+			if (!code) {
+				uni.showToast({ title: '请输入验证码', icon: 'none' })
+				return
+			}
+
+			// 验证密码
+			if (!password) {
+				uni.showToast({ title: '请输入密码', icon: 'none' })
+				return
+			}
+
+			uni.showLoading({ title: '修改中...' })
+
+			if (this.currentTab === 0) {
+				// 手机号修改密码
+				if (!phone) {
+					uni.hideLoading()
+					uni.showToast({ title: '请输入手机号码', icon: 'none' })
+					return
+				}
+				await updatePsd({
+					phone,
+					verifyCode: code,
+					newPassWord: password
+				})
+			} else {
+				// 邮箱修改密码
+				if (!email) {
+					uni.hideLoading()
+					uni.showToast({ title: '请输入邮箱地址', icon: 'none' })
+					return
+				}
+				await updatePsdByEmailCode({
+					email,
+					verifyCode: code,
+					newPassWord: password
+				})
+			}
+
+			uni.hideLoading()
+
+			uni.showToast({ title: '密码修改成功', icon: 'success' })
+
+			setTimeout(() => {
+				uni.navigateTo({ url: '/pages/login/login' })
+			}, 1500)
 		},
 		toRegister() {
 			uni.navigateTo({

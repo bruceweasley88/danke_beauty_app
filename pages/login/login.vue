@@ -13,8 +13,8 @@
 
 			<view class="form-content">
 				<view class="input-group" v-if="currentTab === 0">
-					<view class="country-code">
-						<text>+86</text>
+					<view class="country-code" @click="showCountryPicker = true">
+						<text>+{{ areaCode }}</text>
 						<uni-icons type="bottom" size="14" color="#1E211F"></uni-icons>
 					</view>
 					<input class="input-field" type="number" placeholder="请输入你的手机号码" placeholder-class="placeholder-style"
@@ -48,15 +48,26 @@
 				</view>
 			</view>
 		</view>
+
+		<country-picker :visible="showCountryPicker" v-model="areaCode" @cancel="showCountryPicker = false"
+			@ok="showCountryPicker = false" />
 	</view>
 </template>
 
 <script>
+import CountryPicker from '@/components/country-picker.vue'
+import { userPasswordLogin, userEmailLogin } from '@/apis/userApi.js'
+
 export default {
+	components: {
+		CountryPicker
+	},
 	data() {
 		return {
 			currentTab: 0, // 0: 手机号, 1: 邮箱
 			isAgreed: false,
+			areaCode: '86',
+			showCountryPicker: false,
 			formData: {
 				phone: '',
 				email: '',
@@ -65,7 +76,7 @@ export default {
 		};
 	},
 	methods: {
-		handleLogin() {
+		async handleLogin() {
 			if (!this.isAgreed) {
 				uni.showToast({
 					title: '请先同意用户协议',
@@ -73,13 +84,58 @@ export default {
 				});
 				return;
 			}
-			// 登录逻辑...
-			console.log('Login logic here', this.formData);
 
-			//
-			uni.switchTab({
-				url: '/pages/index/index'
-			})
+			const { phone, email, password } = this.formData
+
+			if (!password) {
+				uni.showToast({ title: '请输入密码', icon: 'none' })
+				return
+			}
+
+			uni.showLoading({ title: '登录中...' })
+
+			let res
+			if (this.currentTab === 0) {
+				// 手机号登录
+				if (!phone) {
+					uni.hideLoading()
+					uni.showToast({ title: '请输入手机号码', icon: 'none' })
+					return
+				}
+				res = await userPasswordLogin({
+					phone,
+					password,
+					terminal: 1,
+					areaCode: this.areaCode,
+					deviceToken: 1,
+				})
+			} else {
+				// 邮箱登录
+				if (!email) {
+					uni.hideLoading()
+					uni.showToast({ title: '请输入邮箱地址', icon: 'none' })
+					return
+				}
+				res = await userEmailLogin({
+					email,
+					password,
+					terminal: 1,
+					deviceToken: 1,
+				})
+			}
+
+			uni.hideLoading()
+
+			// 存储 token
+			if (res.data?.token) {
+				uni.setStorageSync('token', res.data.token)
+			}
+
+			uni.showToast({ title: '登录成功', icon: 'success' })
+
+			setTimeout(() => {
+				uni.switchTab({ url: '/pages/index/index' })
+			}, 1500)
 		},
 		toForgot() {
 			console.log('Navigate to forgot password');

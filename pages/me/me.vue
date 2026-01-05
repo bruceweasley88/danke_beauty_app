@@ -2,10 +2,10 @@
 	<view class="profile-container">
 		<view class="header-section">
 			<view class="avatar-box">
-				<image class="avatar" src="/static/img/icon_photo.webp" mode="aspectFill"></image>
+				<image class="avatar" :src="userInfo.headImg || '/static/img/icon_photo.webp'" mode="aspectFill"></image>
 			</view>
 			<view class="user-info">
-				<text class="user-name">Sheryl</text>
+				<text class="user-name">{{ userInfo.nickName || '未设置昵称' }}</text>
 				<view class="social-link">
 					<text>添加您的社交账号</text>
 					<view class="mini-arrow"></view>
@@ -32,9 +32,12 @@
 </template>
 
 <script>
+import { userGetInfo } from '@/apis/userApi.js'
+
 export default {
 	data() {
 		return {
+			userInfo: {},
 			menuList: [
 				{ title: '个人资料', icon: '/static/me_img/icon_profile@2x.png', action: 'toPersonal' },
 				{ title: '我的设备', icon: '/static/me_img/icon_device@2x.png', action: 'toDevices' },
@@ -44,7 +47,14 @@ export default {
 			]
 		};
 	},
+	onShow() {
+		this.getUserInfo();
+	},
 	methods: {
+		async getUserInfo() {
+			const userInfo = await userGetInfo();
+			this.userInfo = userInfo.data;
+		},
 		handleMenuClick(item) {
 			if (item.action && typeof this[item.action] === 'function') {
 				this[item.action]();
