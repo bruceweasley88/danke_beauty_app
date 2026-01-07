@@ -8,10 +8,10 @@
 		</view>
 
 		<view class="content-card">
-			<view class="list-item" @tap="showModal = true">
+			<view class="list-item" @tap="checkUpdate">
 				<text class="title">检查更新</text>
 				<view class="right-box">
-					<text class="version-text">V1.0.8</text>
+					<text class="version-text">{{ displayVersion }}</text>
 					<text class="arrow-icon"></text>
 				</view>
 			</view>
@@ -43,20 +43,49 @@
 
 <script>
 import NavBack from '../../components/nav-back.vue'
+import { configGetAppVersion } from '../../apis/configApi';
+
 export default {
 	components: {
 		NavBack,
 	},
 	data() {
 		return {
-			// 控制弹窗显隐
+			displayVersion: uni.getSystemInfoSync().appVersion,
 			showModal: false
 		};
 	},
+	onLoad() {
+
+	},
 	methods: {
+		checkUpdate() {
+			uni.showLoading({ title: '检查更新中...' });
+
+			const systemInfo = uni.getSystemInfoSync();
+			const platformType = systemInfo.platform === 'ios' ? 1 : 2;
+
+			configGetAppVersion({
+				type: platformType,
+				versionNum: uni.getSystemInfoSync().appVersionCode,
+				terminal: 1
+			}).then(res => {
+				uni.hideLoading();
+				if (res.data.state === '1') {
+					this.showModal = true;
+				} else {
+					uni.showToast({ title: '已经是最新版本', icon: 'success' });
+				}
+			});
+		},
 		confirmUpdate() {
-			// 这里处理更新逻辑
-			console.log('执行更新操作');
+			uni.showModal({
+				title: '更新提示',
+				content: '请手动打开应用商店更新应用',
+				showCancel: false,
+				confirmText: '知道了',
+				confirmColor: '#09AB4D'
+			});
 			this.showModal = false;
 		}
 	}

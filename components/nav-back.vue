@@ -64,7 +64,7 @@ export default {
 		.back-icon {
 			width: 44rpx;
 			height: 44rpx;
-			margin-left: 8rpx;
+			margin-left: 26rpx;
 		}
 
 		.nav-title {

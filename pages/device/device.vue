@@ -319,13 +319,11 @@ page {
 		.action-icon-bg {
 			width: 96rpx;
 			height: 96rpx;
-			background-color: #fff;
 			background-size: cover;
 			border-radius: 50%;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 			margin-top: 20rpx;
 			margin-bottom: 16rpx;
 			font-size: 40rpx;
@@ -353,7 +351,7 @@ page {
 		}
 
 		.add-icon {
-			background-image: url('/static/device_img/icon_add.png');
+			background-image: url('/static/device_img/icon_addhaocai.png');
 		}
 
 		.record-icon {

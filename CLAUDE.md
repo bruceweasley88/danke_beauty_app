@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这是一个 **uni-app 跨平台移动应用**项目。Uni-app 是基于 Vue.js 的框架：
 - 移动应用（iOS/Android）
+- 优先中文
 
 **技术栈：**
 - 框架：uni-app（基于 Vue 2）
@@ -80,3 +81,4 @@ background: linear-gradient(180deg, #A1FFE5 0%, #DBFFE5 28.37%, #F3FFF6 50.48%, 
 - 不要过度设计
 - 不要过度拆分
 - 非必要不用try
+- 遇到不清楚的问题,非常鼓励先询问
