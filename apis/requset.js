@@ -11,7 +11,7 @@ const request = (options) => {
       data,
       success: (res) => {
         if (res.data.code === 401) {
-          uni.navigateTo({ url: '/pages/login/index' })
+          uni.navigateTo({ url: '/pages/login/login' })
           throw new Error('请先登录');
         }
         if (res.data.code !== 200) {

@@ -1,13 +1,14 @@
 <template>
 	<view class="profile-container">
-		<view class="header-section">
+		<view class="header-section" @click="toPersonal">
 			<view class="avatar-box">
 				<image class="avatar" :src="userInfo.headImg || '/static/img/icon_photo.webp'" mode="aspectFill"></image>
 			</view>
 			<view class="user-info">
 				<text class="user-name">{{ userInfo.nickName || '未设置昵称' }}</text>
 				<view class="social-link">
-					<text>添加您的社交账号</text>
+					<text v-if="firstSocial">{{ firstSocial }}</text>
+					<text v-else>添加您的社交账号</text>
 					<view class="mini-arrow"></view>
 				</view>
 			</view>
@@ -26,7 +27,7 @@
 		</view>
 
 		<view class="logout-wrapper">
-			<button class="logout-btn" border="false">退出登录</button>
+			<button class="logout-btn" border="false" @tap="handleLogout">退出登录</button>
 		</view>
 	</view>
 </template>
@@ -42,13 +43,30 @@ export default {
 				{ title: '个人资料', icon: '/static/me_img/icon_profile@2x.png', action: 'toPersonal' },
 				{ title: '我的设备', icon: '/static/me_img/icon_device@2x.png', action: 'toDevices' },
 				{ title: '使用说明', icon: '/static/me_img/icon_explanation@2x.png' },
-				{ title: '语言选择', icon: '/static/me_img/icon_language@2x.png' },
+				{ title: '语言选择', icon: '/static/me_img/icon_language@2x.png', action: 'toLanguage' },
 				{ title: '关于我们', icon: '/static/me_img/icon_about@2x.png', action: 'toAbout' }
 			]
 		};
 	},
 	onShow() {
 		this.getUserInfo();
+	},
+	computed: {
+		// 获取第一个已填写的社交账号
+		firstSocial() {
+			const socialFields = [
+				{ key: 'whatsapp', prefix: 'whatsapp@' },
+				{ key: 'x', prefix: 'x@' },
+				{ key: 'tg', prefix: 'telegram@' }
+			];
+
+			for (const field of socialFields) {
+				if (this.userInfo[field.key]) {
+					return field.prefix + this.userInfo[field.key];
+				}
+			}
+			return null;
+		}
 	},
 	methods: {
 		async getUserInfo() {
@@ -75,6 +93,28 @@ export default {
 				url: '/pages/about/about'
 			})
 		},
+		toLanguage() {
+			uni.navigateTo({
+				url: '/pages/language/language'
+			})
+		},
+		handleLogout() {
+			uni.showModal({
+				title: '提示',
+				content: '确定要退出登录吗？',
+				success: (res) => {
+					if (res.confirm) {
+						// 用户点击确定
+						uni.removeStorageSync('token')
+						this.userInfo = {}
+						uni.reLaunch({
+							url: '/pages/login/login'
+						})
+					}
+					// 用户点击取消，不做任何操作
+				}
+			})
+		}
 	}
 };
 </script>
@@ -88,7 +128,6 @@ $card-bg: #FFFFFF;
 $placeholder-color: #888;
 
 .profile-container {
-	min-height: 100vh;
 	padding: 0 30rpx;
 	/* 背景渐变已由全局处理，此处保持透明 */
 }

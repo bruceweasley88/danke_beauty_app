@@ -60,7 +60,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.8);
   /* 半透明遮罩（非截图黑色背景） */
   display: flex;
   justify-content: center;
@@ -71,7 +71,7 @@ export default {
   .body {
     margin: 0 auto;
     position: absolute;
-    bottom: 40rpx;
+    bottom: 100rpx;
 
     display: flex;
     align-items: center;
@@ -158,7 +158,7 @@ export default {
         line-height: 100%;
         font-weight: 400;
         font-size: 33rpx;
-        color: #7D7E83;
+        color: #9CA29D;
         text-align: center;
       }
 
@@ -168,7 +168,7 @@ export default {
         font-family: 'Alibaba Medium';
         font-weight: bold;
         font-size: 33rpx;
-        color: #27BDC1;
+        color: #09AB4D;
         text-align: center;
       }
 
