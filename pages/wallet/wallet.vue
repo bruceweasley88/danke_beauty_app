@@ -44,19 +44,46 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 钱包地址编辑弹窗 -->
+		<confirm-popup
+			:visible="showAddressPopup"
+			title="添加钱包地址"
+			@cancel="showAddressPopup = false"
+			@ok="saveAddress">
+			<view class="wallet-inputs">
+				<view class="wallet-tip">确认你的钱包地址是BSC公链地址，并添加正确，否则你将无法接收代币。</view>
+				<input
+					class="wallet-input"
+					type="text"
+					placeholder="填写地址备注"
+					v-model="tempAddressData.label" />
+				<textarea
+					class="wallet-input wallet-textarea"
+					placeholder="填写正确的BSC公链地址"
+					v-model="tempAddressData.address" />
+			</view>
+		</confirm-popup>
 	</view>
 </template>
 
 <script>
 	import NavBack from '../../components/nav-back.vue';
+	import ConfirmPopup from '../../components/confirm-popup.vue';
 
 	export default {
 		components: {
-			NavBack
+			NavBack,
+			ConfirmPopup
 		},
 		data() {
 			return {
 				type: 'wallet',
+				showAddressPopup: false,
+				tempAddressData: {
+					label: '',
+					address: ''
+				},
 				info: {
 					// 调试提示：
 					// 1. 设置为空字符串 '' 查看【空状态】 (图1)
@@ -84,10 +111,18 @@
 				// this.info.address = 'Y9h7s4aQ2hX4N8b4C1Jv2L3pW4ZpR7sT1';
 			},
 			editAddress() {
-				uni.showToast({
-					title: '编辑地址',
-					icon: 'none'
-				});
+				// 打开弹窗，初始化临时数据
+				this.tempAddressData = {
+					label: this.info.label || '',
+					address: this.info.address || ''
+				};
+				this.showAddressPopup = true;
+			},
+			saveAddress() {
+				// 保存数据
+				this.info.label = this.tempAddressData.label;
+				this.info.address = this.tempAddressData.address;
+				this.showAddressPopup = false;
 			}
 		}
 	}
@@ -286,6 +321,46 @@
 		/* 点击效果 */
 		&:active {
 			opacity: 0.9;
+		}
+	}
+
+	/* ================= 钱包弹窗输入框样式 ================= */
+	.wallet-inputs {
+		width: 560rpx;
+		margin: 0 auto;
+
+		.wallet-tip {
+			color: #5F7564;
+			font-size: 29rpx;
+			margin-bottom: 44rpx;
+		}
+
+		.wallet-input {
+			width: 100%;
+			background: #F8FAF9;
+			border-radius: 22rpx;
+			padding: 0 30rpx;
+			box-sizing: border-box;
+			font-size: 28rpx;
+			color: #1E211F;
+			border: none;
+
+			&::placeholder {
+				color: #C2C9C3;
+			}
+		}
+
+		.wallet-input:not(.wallet-textarea) {
+			height: 86rpx;
+			line-height: 86rpx;
+			margin-bottom: 44rpx;
+		}
+
+		.wallet-textarea {
+			height: 211rpx;
+			line-height: 1.5;
+			padding-top: 20rpx;
+			padding-bottom: 20rpx;
 		}
 	}
 </style>
