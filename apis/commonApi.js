@@ -80,3 +80,19 @@ export const commonUploadImage = (filePath) => {
     })
   })
 }
+
+/**
+ * @description 获取服务协议
+ * @returns {Promise<Object>} 返回Promise对象，包含服务协议HTML内容
+ */
+export const commonGetServiceInfo = () => {
+  return get('/api/common/serviceInfo')
+}
+
+/**
+ * @description 获取使用说明
+ * @returns {Promise<Object>} 返回Promise对象，包含使用说明HTML内容
+ */
+export const commonGetUseInfo = () => {
+  return get('/api/common/useInfo')
+}

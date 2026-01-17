@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <script src="uni.webview.1.5.6.js"></script>
+  <script src="ethers.umd.min.js"></script>
+  <script>
+    console.log('webview正在运行...')
+    const BSC_RPC = "https://data-seed-prebsc-1-s1.binance.org:8545";
+    const provider = new ethers.JsonRpcProvider(BSC_RPC);
+    const tokenAddress = "0xb2743f24CD41c2e7F7c61541231f25c8C9C8a5B2";
+
+    const ERC20_ABI = [
+      "function balanceOf(address) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)"
+    ];
+
+    async function getTokenBalance(walletAddress) {
+      console.info('webview正在执行getTokenBalance...')
+      if(!walletAddress) {
+        throw new Error('请输入要查询的钱包地址');
+      }
+      try {
+        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+        const [rawBalance, decimals, symbol] = await Promise.all([
+          contract.balanceOf(walletAddress),
+          contract.decimals(),
+          contract.symbol()
+        ]);
+        const balance = ethers.formatUnits(rawBalance, decimals);
+        const result = { symbol, balance };
+        console.info("获取到钱包信息:", JSON.stringify(result))
+        uni.postMessage({ data: result });
+        console.info("发送到钱包信息完成")
+        return result;
+      } catch (e) {
+        console.error("钱包信息获取失败", e)
+      }
+    }
+
+    window.getTokenBalance = getTokenBalance;
+  </script>
+</body>
+</html>

@@ -82,7 +82,7 @@
 		</view>
 
 		<!-- 底部按钮 -->
-		<view class="list-footer">
+		<view class="list-footer" v-if="status === 'list'">
 			<view class="use-device-btn" @click="handleUseDevice">
 				去使用设备
 			</view>
@@ -93,6 +93,8 @@
 <script>
 import NavBack from '../../components/nav-back.vue'
 import ConfirmPopup from '../../components/confirm-popup.vue'
+import { connectAIMASKDevice, searchAIMASKDevice, setDeviceState, setMassageIntensity, setSkinMode } from '../../utils/aimaskDevice.js'
+
 export default {
 	components: {
 		NavBack,
@@ -102,7 +104,7 @@ export default {
 		return {
 			type: '',
 			// wait bindding list 三个状态
-			status: 'list',
+			status: 'wait',
 			showManualPopup: false,
 			deviceCode: '',
 			foundDevices: [
@@ -133,12 +135,36 @@ export default {
 		this.type = options.type
 	},
 	methods: {
-		handleBind() {
+		async handleBind() {
 			this.status = 'bindding'
+			console.log('开始搜索设备...')
+			const list = await searchAIMASKDevice({ timeout: 3000 });
+			console.log('搜索到的设备列表:', list)
+			if(list.length) {
+				const device = list[0];
+				const connect = await connectAIMASKDevice(device.deviceId, (data) => {
+					console.log('---- 收到设备数据:', data)
+				});
+				console.log('连接结果:', connect)
+				
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				await setMassageIntensity(connect, 80);
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await setSkinMode(connect, 2);
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await setDeviceState(connect, 1);
+
+			
+
+				// const battery = await getDeviceBattery(connect);
+				// console.log('设备电量:', battery)
+				console.log('--操作完成--')
+			}
+			this.status = 'list'
 		},
 		openManualAddPopup() {
-			this.deviceCode = ''
-			this.showManualPopup = true
+			this.deviceCode = '';
+			this.showManualPopup = true;
 		},
 		saveDeviceCode() {
 			console.log('用户输入的设备串码:', this.deviceCode)

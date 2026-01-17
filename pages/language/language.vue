@@ -42,7 +42,7 @@ export default {
 		return {
 			current: 'en',
 			list: [
-				{ "icon": "/static/lang/img_chinese.webp", "key": "language.chinese", "value": "zh" },
+				{ "icon": "/static/lang/img_chinese.webp", "key": "language.chinese", "value": "zh-Hans" },
 				{ "icon": "/static/lang/img_danish.webp", "key": "language.danish", "value": "da" },
 				{ "icon": "/static/lang/img_en.webp", "key": "language.english", "value": "en" },
 				{ "icon": "/static/lang/img_fr.webp", "key": "language.french", "value": "fr" },
@@ -59,6 +59,7 @@ export default {
 	},
 	onLoad() {
 		this.current = getLanguage()
+		console.log('current language:', this.current)
 	},
 	onShow() {
 
@@ -84,14 +85,18 @@ export default {
 }
 </script>
 <style scoped>
-page {
+.page {
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
 	background: #111217;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
-
 
 .body {
 	margin: 0 auto;
-	margin-top: 280rpx;
 
 	display: flex;
 	align-items: center;

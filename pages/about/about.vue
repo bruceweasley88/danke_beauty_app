@@ -15,7 +15,7 @@
 					<text class="arrow-icon"></text>
 				</view>
 			</view>
-			<view class="list-item">
+			<view class="list-item" @tap="toSerivce">
 				<text class="title">服务协议</text>
 				<view class="right-box">
 					<text class="arrow-icon"></text>
@@ -50,8 +50,10 @@ export default {
 		NavBack,
 	},
 	data() {
+		console.log(uni.getSystemInfoSync());
+
 		return {
-			displayVersion: uni.getSystemInfoSync().appVersion,
+			displayVersion: uni.getSystemInfoSync().appWgtVersion,
 			showModal: false
 		};
 	},
@@ -65,9 +67,11 @@ export default {
 			const systemInfo = uni.getSystemInfoSync();
 			const platformType = systemInfo.platform === 'ios' ? 1 : 2;
 
+
+			const versionNum = Number(this.displayVersion.replace(/\./g, ''));
 			configGetAppVersion({
 				type: platformType,
-				versionNum: uni.getSystemInfoSync().appVersionCode,
+				versionNum: versionNum,
 				terminal: 1
 			}).then(res => {
 				uni.hideLoading();
@@ -87,6 +91,11 @@ export default {
 				confirmColor: '#09AB4D'
 			});
 			this.showModal = false;
+		},
+		toSerivce() {
+			uni.navigateTo({
+				url: '/pages/service-agreement/service-agreement'
+			})
 		}
 	}
 }

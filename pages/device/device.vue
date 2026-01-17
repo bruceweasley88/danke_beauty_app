@@ -1,10 +1,10 @@
 <template>
 	<view class="container">
-		<nav-back title="AI面膜"></nav-back>
+		<nav-back :title="title"></nav-back>
 
 		<view class="content">
 			<view class="status-section">
-				<view class="device-icon-wrapper">
+				<view class="device-icon-wrapper" :class="'icon-' + type">
 					<view class="icon-placeholder"></view>
 				</view>
 				<view class="device-info">
@@ -15,22 +15,22 @@
 					</view>
 				</view>
 				<view class="warning-tips">
-					<text>暂无面膜无法使用仪器，去</text>
-					<text class="link">添加面膜 ></text>
+					<text>扫码/输入SN码，可获得积分，去</text>
+					<text class="link" @click="toAddConsumable">添加积分 ></text>
 				</view>
 			</view>
 
-			<view class="card">
+			<view class="card" v-if="support.models">
 				<view class="card-title">设备模式</view>
 				<view class="mode-group">
-					<view v-for="(item, index) in modes" :key="index" class="mode-item" :class="{ active: currentMode === index }"
-						@click="currentMode = index">
+					<view v-for="(item, index) in models" :key="index" class="mode-item"
+						:class="{ active: currentMode === index }" @click="currentMode = index">
 						{{ item }}
 					</view>
 				</view>
 			</view>
 
-			<view class="card">
+			<view class="card" v-if="support.intensity">
 				<view class="card-title">设备强度</view>
 				<view class="intensity-control">
 					<view class="btn-minus" @click="changeIntensity(-1)"></view>
@@ -38,7 +38,8 @@
 					<view class="btn-plus" @click="changeIntensity(1)"></view>
 				</view>
 				<view class="slider-box">
-					<view class="slider-track">
+					<view class="slider-track" @touchstart="handleDragStart" @touchmove="handleDragMove"
+						@touchend="handleDragEnd">
 						<view class="slider-bar" :style="{ width: (intensity / 8) * 100 + '%' }"></view>
 						<view class="slider-thumb" :style="{ left: (intensity / 8) * 100 + '%' }"></view>
 					</view>
@@ -48,6 +49,12 @@
 					</view>
 				</view>
 			</view>
+
+			<view class="card" v-if="support.showAddConsumable">
+				<consumable-modal-card :type="type" :showCancel="false" @add="toSnPage" />
+			</view>
+
+
 		</view>
 
 		<view class="bottom-actions">
@@ -55,8 +62,8 @@
 				<view class="action-icon-bg add-icon"></view>
 				<text>添加耗材</text>
 			</view>
-			<view class="action-item main">
-				<view class="start-btn">
+			<view class="action-item main" v-if="support.start">
+				<view class="start-btn" @click="toBinding" hover-class="hover">
 					<view class="power-icon"></view>
 				</view>
 				<text class="active-text">开启仪器</text>
@@ -71,16 +78,50 @@
 
 <script>
 import NavBack from '../../components/nav-back.vue'
+import ConsumableModalCard from '../../components/consumable-modal-card.vue'
 
 export default {
 	components: {
 		NavBack,
+		ConsumableModalCard,
+	},
+	onShow() {
 	},
 	data() {
 		return {
-			modes: ['净化排毒', '脉冲导入', '紧致提升'],
+			type: '', // mask: 面膜 spray: 喷雾 bra: 文胸 importer: 导入仪
+			models: ['净化排毒', '脉冲导入', '紧致提升'],
 			currentMode: 0,
 			intensity: 7,
+			isDragging: false,
+		}
+	},
+	onLoad(options) {
+		this.type = options.type;
+	},
+	computed: {
+		title() {
+			const titleMap = {
+				mask: 'AI面膜',
+				spray: '补水喷雾器',
+				importer: '美容导入仪',
+				bra: 'AI文胸'
+			};
+			return titleMap[this.type] || 'AI面膜';
+		},
+		support() {
+
+			const models = true;
+			const intensity = true;
+			const showAddConsumable = true;
+			const start = true;
+
+			switch (this.type) {
+				case 'mask': return { models, intensity, start };
+				case 'bra': return { models, intensity, start };
+				case 'spray': return { showAddConsumable };
+				case 'importer': return { showAddConsumable };
+			}
 		}
 	},
 	methods: {
@@ -90,6 +131,35 @@ export default {
 				this.intensity = res;
 			}
 		},
+		handleDragStart(e) {
+			this.isDragging = true;
+			this.updateIntensityFromTouch(e);
+		},
+		handleDragMove(e) {
+			if (!this.isDragging) return;
+			this.updateIntensityFromTouch(e);
+		},
+		handleDragEnd() {
+			this.isDragging = false;
+		},
+		updateIntensityFromTouch(e) {
+			const touch = e.touches[0];
+			const query = uni.createSelectorQuery().in(this);
+			query.select('.slider-track').boundingClientRect();
+			query.exec((res) => {
+				if (res && res[0]) {
+					const track = res[0];
+					const touchX = touch.clientX - track.left;
+					const percent = Math.max(0, Math.min(1, touchX / track.width));
+					this.intensity = Math.round(percent * 8) || 1;
+				}
+			});
+		},
+		toBinding() {
+			uni.redirectTo({
+				url: '/pages/bindding/bindding'
+			})
+		},
 		toConsumableList() {
 			uni.navigateTo({
 				url: '/pages/consumable-list/consumable-list'
@@ -97,7 +167,12 @@ export default {
 		},
 		toAddConsumable() {
 			uni.navigateTo({
-				url: '/pages/add-consumable/add-consumable'
+				url: '/pages/add-consumable/add-consumable?type=' + this.type
+			})
+		},
+		toSnPage() {
+			uni.navigateTo({
+				url: '/pages/sn/sn'
 			})
 		}
 	}
@@ -119,19 +194,24 @@ $black-4: #C2C9C3;
 $black-5: #F8FAF9;
 
 page {
-	background: linear-gradient(180deg, #A1FFE5 0%, #DBFFE5 28.37%, #F3FFF6 50.48%, #F1F3F4 72.6%, #F1F3F4 100%);
+	background: #fff;
 }
 
+.hover {
+	opacity: 0.8;
+}
 
 .container {
-	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-}
+	min-height: 100vh;
+	background: linear-gradient(180deg, #A1FFE5 0%, #DBFFE5 28.37%, #F3FFF6 50.48%, #F1F3F4 72.6%, #F1F3F4 100%);
 
-.content {
-	padding: 0 40rpx;
-	flex: 1;
+	.content {
+		padding: 0 40rpx;
+		flex: 1;
+		margin-bottom: 230rpx;
+	}
 }
 
 /* 状态区域 */
@@ -145,10 +225,25 @@ page {
 		width: 160rpx;
 		height: 160rpx;
 		margin-bottom: 20rpx;
-		background-image: url('/static/device_img/img_mmb.png');
 		background-size: contain;
 		background-repeat: no-repeat;
 		background-position: center;
+
+		&.icon-mask {
+			background-image: url('/static/device_img/img_mmb.png');
+		}
+
+		&.icon-spray {
+			background-image: url('/static/device_img/img_bspwb@2x.webp');
+		}
+
+		&.icon-bra {
+			background-image: url('/static/device_img/img_aiwxb@2x.webp');
+		}
+
+		&.icon-importer {
+			background-image: url('/static/device_img/img_mrdryb@2x.webp');
+		}
 	}
 
 	.device-info {
@@ -193,8 +288,8 @@ page {
 /* 卡片通用样式 */
 .card {
 	background: #FFFFFF;
-	border-radius: 24rpx;
-	padding: 40rpx 30rpx;
+	border-radius: 60rpx;
+	padding: 80rpx 48rpx 64rpx;
 	margin-bottom: 30rpx;
 
 	.card-title {
@@ -301,6 +396,10 @@ page {
 
 /* 底部操作 */
 .bottom-actions {
+	position: fixed;
+	bottom: -40rpx;
+	left: 0;
+	right: 0;
 	display: flex;
 	justify-content: space-around;
 	height: 338.59rpx;
@@ -308,6 +407,7 @@ page {
 	background-size: cover;
 	background-repeat: no-repeat;
 	padding: 0 40rpx;
+	z-index: 10;
 
 	.action-item {
 		display: flex;
@@ -341,7 +441,7 @@ page {
 				margin-bottom: 16rpx;
 				background-image: url('/static/device_img/icon_start.png');
 				background-size: cover;
-				box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+				box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
 			}
 
 			.active-text {
@@ -352,10 +452,12 @@ page {
 
 		.add-icon {
 			background-image: url('/static/device_img/icon_addhaocai.png');
+			box-shadow: -1rpx -4rpx 8rpx 0rpx rgba(0, 0, 0, 0.05);
 		}
 
 		.record-icon {
 			background-image: url('/static/device_img/icon_haocairecord.png');
+			box-shadow: 1rpx -4rpx 8rpx 0rpx rgba(0, 0, 0, 0.05);
 		}
 	}
 }

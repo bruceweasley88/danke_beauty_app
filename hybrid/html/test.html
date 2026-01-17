@@ -1,0 +1,44 @@
+<script type="module">
+  import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js";
+
+  // 配置 RPC 和地址
+  const BSC_RPC = "https://data-seed-prebsc-1-s1.binance.org:8545";
+  const provider = new ethers.JsonRpcProvider(BSC_RPC);
+
+  const walletAddress = "0xbe7f472f7060eb06414dcf9e2a58574983c00722";
+  const tokenAddress = "0xb2743f24CD41c2e7F7c61541231f25c8C9C8a5B2";
+
+  // 最小 ABI
+  const ERC20_ABI = [
+    "function balanceOf(address) view returns (uint256)",
+    "function decimals() view returns (uint8)",
+    "function symbol() view returns (string)"
+  ];
+
+  async function getTokenBalance() {
+    try {
+      const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+
+      // 并发获取数据
+      const [rawBalance, decimals, symbol] = await Promise.all([
+        contract.balanceOf(walletAddress),
+        contract.decimals(),
+        contract.symbol()
+      ]);
+
+      // 关键点：使用 ethers 官方工具替代手动除以 10**decimals
+      // 这样可以确保超大余额也不会丢失精度
+      const balance = ethers.formatUnits(rawBalance, decimals);
+
+      console.log(`代币符号: ${symbol}`);
+      console.log(`实际余额: ${balance}`);
+
+      return { symbol, balance };
+    } catch (error) {
+      console.error("读取合约失败，请检查地址或网络:", error);
+    }
+  }
+
+  // 执行
+  getTokenBalance();
+</script>

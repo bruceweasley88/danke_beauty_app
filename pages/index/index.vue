@@ -2,20 +2,21 @@
 	<view class="page-container">
 		<view class="status-bar"></view>
 		<view class="header-section">
-			<view class="mining-box" @click="toLogin">
+			<view class="mining-box">
 				<text class="label">挖矿进度</text>
 				<view class="value-row">
-					<text class="main-digit">8888.00011</text>
+					<text class="main-digit">{{ userInfo?.hst || '0.000000' }}</text>
 					<text class="unit">HST</text>
 				</view>
 			</view>
-			<view class="avatar-wrapper">
+			<view class="avatar-wrapper" @click="toPersonal">
 				<image :src="getUserHeadImg()" class="avatar-image" mode="aspectFill"></image>
 			</view>
 		</view>
 
 		<view class="swiper-container">
-			<swiper class="main-banner" circular :autoplay="bannerList.length > 1" :interval="3000" indicator-dots indicator-active-color="#09AB4D">
+			<swiper class="main-banner" circular :autoplay="bannerList.length > 1" :interval="3000" indicator-dots
+				indicator-active-color="#09AB4D">
 				<swiper-item v-for="(item, index) in bannerList" :key="index">
 					<image v-if="item.image" :src="item.image" class="banner-image" mode="aspectFill"></image>
 					<view v-else class="banner-image-box black-placeholder"></view>
@@ -25,7 +26,7 @@
 
 		<view class="grid-layout">
 			<view class="device-card bg-mask">
-				<view class="card-content" @click="toDevice">
+				<view class="card-content" @click="toDevice('mask')">
 					<text class="device-name">AI面膜</text>
 					<text class="device-intro">臻享胶原水光细胞</text>
 					<view class="action-btn" style="background-color: #344D6C;">绑定设备</view>
@@ -33,7 +34,7 @@
 			</view>
 
 			<view class="device-card bg-spray">
-				<view class="card-content">
+				<view class="card-content" @click="toDevice('spray')">
 					<text class="device-name">补水喷雾器</text>
 					<text class="device-intro">纳米喷雾保湿美容</text>
 					<view class="action-btn" style="background-color: #306738;">去使用</view>
@@ -42,7 +43,7 @@
 			</view>
 
 			<view class="device-card bg-bra">
-				<view class="card-content">
+				<view class="card-content" @click="toDevice('bra')">
 					<text class="device-name">AI文胸</text>
 					<text class="device-intro">EMS脉冲技术养护</text>
 					<view class="action-btn" style="background-color: #4E346C;">去使用</view>
@@ -51,7 +52,7 @@
 			</view>
 
 			<view class="device-card bg-beauty">
-				<view class="card-content">
+				<view class="card-content" @click="toDevice('importer')">
 					<text class="device-name">美容导入仪</text>
 					<text class="device-intro">微晶提拉水光肌</text>
 					<view class="action-btn" style="background-color: #673030;">去使用</view>
@@ -59,6 +60,8 @@
 				</view>
 			</view>
 		</view>
+		<web-view v-if="token" v-show="false" :update-title="false" :fullscreen="false" src="/hybrid/html/index.html"
+			@message="handleWebViewMessage" />
 	</view>
 </template>
 
@@ -71,13 +74,29 @@ export default {
 
 	},
 	onShow() {
-		this.getIndexBanner();
-		this.getUserInfo();
+		const token = uni.getStorageSync('token')
+		this.token = token;
+		console.log('token', token)
+		if (token) {
+			this.getIndexBanner();
+			this.getUserInfo();
+			this.onWebviewReady()
+		} else {
+			uni.redirectTo({
+				url: '/pages/login/login',
+			})
+		}
 	},
 	data() {
 		return {
+			// 仅用来判断是否加载webview
+			token: null,
+
 			bannerList: [],
-			userInfo: null
+			userInfo: null,
+
+			// hst增加定时器
+			hstTimer: null
 		}
 	},
 	methods: {
@@ -90,20 +109,68 @@ export default {
 		async getUserInfo() {
 			const userInfo = await userGetInfo();
 			this.userInfo = userInfo.data;
+			console.log('用户信息', this.userInfo);
+			this.startHstAdd();
 		},
 		getUserHeadImg() {
 			return this.userInfo?.headImg || '/static/img/icon_photo.webp'
 		},
-		toDevice() {
+		startHstAdd() {
+			clearInterval(this.hstTimer);
+			if (!this.userInfo?.totalJumpsNum) {
+				return;
+			}
+
+			const totalJumpsNum = this.userInfo.totalJumpsNum;
+			const seconds = 86400;
+			let sNum = totalJumpsNum / seconds;
+
+			// 计算今天已经过去的秒数
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const now = new Date();
+			const passedSeconds = Math.floor((now - today) / 1000);
+
+			// 计算当前应该有的hst
+			this.userInfo.hst = (Number(this.userInfo.hst || 0) + (sNum * passedSeconds)).toFixed(6);
+
+			if (sNum < 0.000001) {
+				sNum = 0.000001;
+			}
+			this.hstTimer = setInterval(() => {
+				this.userInfo.hst = (Number(this.userInfo.hst) + sNum).toFixed(6);
+			}, 1000);
+		},
+		toDevice(type) {
 			uni.navigateTo({
-				url: '/pages/device/device'
+				url: `/pages/device/device?type=${type}`
+			})
+		},
+		toPersonal() {
+			uni.navigateTo({
+				url: '/pages/personal/personal'
 			})
 		},
 		toLogin() {
 			uni.navigateTo({
 				url: '/pages/login/login'
 			})
-		}
+		},
+		handleWebViewMessage(e) {
+			const balance = e.detail.data[0].balance;
+			uni.$emit('onBalance', balance);
+		},
+		onWebviewReady() {
+			// #ifdef APP-PLUS
+			setTimeout(() => {
+				const currentWebview = this.$scope.$getAppWebview();
+				const webview = currentWebview.children()[0];
+				if (webview) {
+					getApp().globalData.webview = webview;
+				}
+			}, 600)
+			// #endif
+		},
 	}
 }
 </script>
@@ -171,6 +238,11 @@ page {
 		height: 110rpx;
 		border: 4rpx solid #fff;
 		border-radius: 50%;
+		cursor: pointer;
+
+		&:active {
+			opacity: 0.8;
+		}
 
 		.black-placeholder {
 			width: 100%;

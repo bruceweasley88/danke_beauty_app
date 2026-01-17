@@ -4,35 +4,92 @@
 		<nav-back title="关于我们"></nav-back>
 		<view class="header-section">
 			<text class="title">全部设备</text>
-			<text class="manage-btn">管理</text>
+			<text class="manage-btn">
+				<!-- 管理 -->
+			</text>
 		</view>
 
 		<scroll-view scroll-y class="device-list">
-			<view class="device-card" v-for="(item, index) in deviceList" :key="index">
-				<view class="device-icon-placeholder"></view>
+			<view class="device-card" hover-class="card-hover" @click="toDevice('mask')">
+				<view class="device-icon-placeholder icon-mask"></view>
 
 				<view class="device-info">
-					<view class="name">{{ item.name }}</view>
-					<view class="sn">设备编号：{{ item.sn }}</view>
+					<view class="name">AI面膜</view>
+					<view class="sn">设备编号：A001042</view>
 				</view>
 
 				<view class="device-status-box">
-					<view :class="['status-dot', item.connected ? 'online' : 'offline']">
+					<view class="status-dot online">
 						<view class="dot"></view>
-						<text>{{ item.connected ? '已连接' : '未连接' }}</text>
+						<text>已连接</text>
 					</view>
-					<view class="time">{{ item.time }}</view>
+					<view class="time">2024-05-12 10:12</view>
 				</view>
 
-				<view v-if="item.showDelete" class="delete-icon">
+				<view class="delete-icon" @click.stop="$noSupport()">
+					<text class="close-symbol">×</text>
+				</view>
+			</view>
+
+			<view class="device-card" hover-class="card-hover" @click="toDevice('spray')">
+				<view class="device-icon-placeholder icon-spray"></view>
+
+				<view class="device-info">
+					<view class="name">补水喷雾</view>
+					<view class="sn">设备编号：A002157</view>
+				</view>
+
+				<view class="device-status-box">
+					<view class="status-dot offline">
+						<view class="dot"></view>
+						<text>未连接</text>
+					</view>
+					<view class="time">2024-05-12 10:12</view>
+				</view>
+			</view>
+
+			<view class="device-card" hover-class="card-hover" @click="toDevice('bra')">
+				<view class="device-icon-placeholder icon-bra"></view>
+
+				<view class="device-info">
+					<view class="name">AI文胸</view>
+					<view class="sn">设备编号：A002157</view>
+				</view>
+
+				<view class="device-status-box">
+					<view class="status-dot offline">
+						<view class="dot"></view>
+						<text>未连接</text>
+					</view>
+					<view class="time">2024-05-12 10:12</view>
+				</view>
+			</view>
+
+			<view class="device-card" hover-class="card-hover" @click="toDevice('importer')">
+				<view class="device-icon-placeholder icon-importer"></view>
+
+				<view class="device-info">
+					<view class="name">美容导入仪</view>
+					<view class="sn">设备编号：A001042</view>
+				</view>
+
+				<view class="device-status-box">
+					<view class="status-dot online">
+						<view class="dot"></view>
+						<text>已连接</text>
+					</view>
+					<view class="time">2024-05-12 10:12</view>
+				</view>
+
+				<view class="delete-icon" @click.stop="$noSupport()">
 					<text class="close-symbol">×</text>
 				</view>
 			</view>
 		</scroll-view>
 
-		<view class="footer-action">
+		<!-- <view class="footer-action">
 			<button class="add-btn" @click="handleAddDevice">添加设备</button>
-		</view>
+		</view> -->
 	</view>
 </template>
 
@@ -44,41 +101,16 @@ export default {
 	},
 	data() {
 		return {
-			deviceList: [
-				{
-					name: 'AI面膜',
-					sn: 'A001042',
-					connected: true,
-					time: '2024-05-12 10:12',
-					showDelete: false
-				},
-				{
-					name: '补水喷雾',
-					sn: 'A002157',
-					connected: false,
-					time: '2024-05-12 10:12',
-					showDelete: false
-				},
-				{
-					name: 'AI文胸',
-					sn: 'A002157',
-					connected: false,
-					time: '2024-05-12 10:12',
-					showDelete: true // 截图中有个关闭按钮
-				},
-				{
-					name: '美容导入仪',
-					sn: 'A001042',
-					connected: true,
-					time: '2024-05-12 10:12',
-					showDelete: false
-				}
-			]
 		};
 	},
 	methods: {
 		handleAddDevice() {
 			console.log('点击添加设备');
+		},
+		toDevice(type) {
+			uni.navigateTo({
+				url: `/pages/device/device?type=${type}`
+			})
 		}
 	}
 };
@@ -136,16 +168,39 @@ page {
 		margin-bottom: 24rpx;
 		display: flex;
 		align-items: center;
+		transition: background-color 0.2s;
+
+		&.card-hover {
+			background-color: #E8EBEA;
+		}
+
+		&:active {
+			opacity: 0.8;
+		}
 
 		.device-icon-placeholder {
 			width: 100rpx;
 			height: 100rpx;
 			background-size: cover;
-			background-image: url('/static/device_img/img_aimms@2x.png');
 			border-radius: 16rpx;
 			margin-right: 24rpx;
-			// 模拟截图中的简易图标边框（如有需要）
 			border: 1rpx solid #f0f0f0;
+
+			&.icon-mask {
+				background-image: url('/static/device_img/img_aimms@2x.png');
+			}
+
+			&.icon-spray {
+				background-image: url('/static/device_img/img_bspws@2x.png');
+			}
+
+			&.icon-bra {
+				background-image: url('/static/device_img/img_aiwxs@2x.png');
+			}
+
+			&.icon-importer {
+				background-image: url('/static/device_img/img_dry@2x.png');
+			}
 		}
 
 		.device-info {
@@ -205,8 +260,8 @@ page {
 
 		.delete-icon {
 			position: absolute;
-			top: -10rpx;
-			right: -10rpx;
+			top: 0rpx;
+			right: 0rpx;
 			width: 36rpx;
 			height: 36rpx;
 			background-color: #ccc;

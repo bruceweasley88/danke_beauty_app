@@ -67,7 +67,8 @@
 		{
 			"path": "pages/language/language",
 			"style": {
-				"navigationBarTitleText": ""
+				"navigationBarTitleText": "",
+				"disableScroll": true
 			}
 		},
 		{
@@ -83,6 +84,12 @@
 			}
 		},
 		{
+			"path": "pages/point_withdraw/point_withdraw",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
 			"path": "pages/wallet/wallet",
 			"style": {
 				"navigationBarTitleText": ""
@@ -93,10 +100,34 @@
 			"style": {
 				"navigationBarTitleText": ""
 			}
+		},
+		{
+			"path": "pages/sn/sn",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/sn-input/sn-input",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/service-agreement/service-agreement",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/user-manual/user-manual",
+			"style": {
+				"navigationBarTitleText": ""
+			}
 		}
 	],
 	"globalStyle": {
-		"navigationStyle": "custom", // 隐藏导航栏
+		"navigationStyle": "custom",
 		"backgroundColor": "#FFFFFF",
 		"bounce": "none"
 	},

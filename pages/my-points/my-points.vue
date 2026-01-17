@@ -1,7 +1,7 @@
 <template>
 	<view class="my-points-page">
 		<nav-back title="我的积分"></nav-back>
-		<points></points>
+		<points :point="userInfo.hst || 0" :showDetail="false"></points>
 
 		<view class="detail-container">
 			<view class="detail-title">积分详情</view>
@@ -25,7 +25,7 @@
 							</view>
 							<view class="right-box">
 								<view class="status">{{ item.status === 1 ? '已提取' : '已获得' }}</view>
-								<view class="time">{{ item.time }}</view>
+								<view class="time">{{ new Date(item.createTime).toLocaleString() }}</view>
 							</view>
 						</view>
 
@@ -36,7 +36,7 @@
 		</view>
 
 		<view class="footer-btn-box">
-			<button class="withdraw-btn">提取积分到钱包</button>
+			<button class="withdraw-btn" @tap="onWithdrawClick">提取积分到钱包</button>
 		</view>
 	</view>
 </template>
@@ -44,6 +44,10 @@
 <script>
 	import NavBack from '../../components/nav-back.vue';
 	import points from '../../components/points.vue';
+	import {
+		userGetInfo
+	} from '@/apis/userApi.js'
+	import { coinRecordGetList } from '@/apis/coinRecordApi.js'
 
 	export default {
 		components: {
@@ -52,57 +56,49 @@
 		},
 		data() {
 			return {
+				userInfo: {},
 				currentTab: 0,
 				tabList: ['全部记录', '提取记录', '获得记录'],
-				// 模拟较多数据以测试滚动
-				allData: [{
-						amount: 50,
-						status: 1,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 120,
-						status: 2,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 280,
-						status: 2,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 88,
-						status: 2,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 1000,
-						status: 1,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 666,
-						status: 2,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 999,
-						status: 1,
-						time: '2024-05-12 10:12:53'
-					},
-					{
-						amount: 123,
-						status: 2,
-						time: '2024-05-12 10:12:53'
-					},
-				]
+				withdrawList: [],
+				receiveList: []
 			}
+		},
+		async onShow() {
+			this.getUserInfo();
+			await Promise.all([
+				this.getWithdrawList(),
+				this.getReceiveList()
+			]);
 		},
 		computed: {
 			filteredList() {
-				if (this.currentTab === 1) return this.allData.filter(i => i.status === 1);
-				if (this.currentTab === 2) return this.allData.filter(i => i.status === 2);
-				return this.allData;
+				let allList = [
+					...this.withdrawList.map(item => ({ ...item, status: 1 })),
+					...this.receiveList.map(item => ({ ...item, status: 2 }))
+				];
+				allList.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+				if (this.currentTab === 1) return allList.filter(i => i.status === 1);
+				if (this.currentTab === 2) return allList.filter(i => i.status === 2);
+				return allList;
+			}
+		},
+		methods: {
+			async getUserInfo() {
+				const userInfo = await userGetInfo();
+				this.userInfo = userInfo.data;
+			},
+			async getWithdrawList() {
+				const res = await coinRecordGetList({ page: 1, limit: 9999, type: 2 });
+				this.withdrawList = res.data || [];
+			},
+			async getReceiveList() {
+				const res = await coinRecordGetList({ page: 1, limit: 9999, type: 1 });
+				this.receiveList = res.data || [];
+			},
+			onWithdrawClick() {
+				uni.navigateTo({
+					url: '/pages/point_withdraw/point_withdraw'
+				})
 			}
 		}
 	}

@@ -1,4 +1,4 @@
- {
+{
 	"common.cancel": "取消",
 	"common.confirm": "确认",
 	"common.save": "保存",
@@ -208,5 +208,15 @@
 	"report.ecg": "心电图",
 	"report.ecgDesc": "记录身体变化",
 	"report.record": "记录",
-	"report.noData": "暂无数据"
+	"report.noData": "暂无数据",
+	"pointWithdraw.title": "积分提现",
+	"pointWithdraw.exchangePoints": "兑换积分",
+	"pointWithdraw.withdrawPoints": "提现积分",
+	"pointWithdraw.withdrawAll": "全部提现",
+	"pointWithdraw.wallet": "钱包",
+	"pointWithdraw.bindWalletAddress": "绑定钱包地址",
+	"pointWithdraw.goToWithdraw": "去提现",
+	"pointWithdraw.tips": "积分将提现到您的钱包，请稍候。",
+	"pointWithdraw.insufficientPoints": "积分不足",
+	"pointWithdraw.enterValidPoints": "请输入有效的积分",
 }

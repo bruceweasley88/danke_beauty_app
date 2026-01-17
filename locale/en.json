@@ -208,5 +208,15 @@
 	"report.ecg": "Electrocardiogram",
 	"report.ecgDesc": "Record physical changes",
 	"report.record": "Record",
-	"report.noData": "No data"
+	"report.noData": "No data",
+	"pointWithdraw.title": "Point withdraw",
+	"pointWithdraw.exchangePoints": "Exchange points",
+	"pointWithdraw.withdrawPoints": "Withdraw points",
+	"pointWithdraw.withdrawAll": "Withdraw all",
+	"pointWithdraw.wallet": "Wallet",
+	"pointWithdraw.bindWalletAddress": "Bind wallet address",
+	"pointWithdraw.goToWithdraw": "Go to Withdraw",
+	"pointWithdraw.tips": "Points will be withdrawn to your wallet, please wait.",
+	"pointWithdraw.insufficientPoints": "Insufficient points",
+	"pointWithdraw.enterValidPoints": "Please enter valid points"
 }

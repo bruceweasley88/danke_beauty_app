@@ -7,7 +7,7 @@
 			<view class="section-header">
 				<text class="title"></text>
 
-				<view class="more-btn" style="margin-top: -88rpx;">
+				<view class="more-btn" style="margin-top: -88rpx;" @click="toAddConsumable">
 					<text>添加更多耗材</text>
 					<text class="arrow"></text>
 				</view>
@@ -71,6 +71,13 @@ export default {
 				{ name: 'AI文胸耗材', count: 1, date: '2025.11.16 22:19' }
 			]
 		};
+	},
+	methods: {
+		toAddConsumable() {
+			uni.navigateTo({
+				url: '/pages/add-consumable/add-consumable'
+			})
+		}
 	}
 };
 </script>
@@ -105,6 +112,8 @@ $black-4: #C2C9C3;
 		align-items: center;
 		font-size: 26rpx;
 		color: $black-3;
+		z-index: 9999;
+		position: relative;
 
 		.arrow {
 			width: 12rpx;

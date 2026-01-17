@@ -33,7 +33,7 @@
 			handleGoWallet() {
 				// 跳转到钱包页面的逻辑
 				console.log('跳转至钱包');
-				// uni.navigateTo({ url: '/pages/wallet/wallet' });
+				uni.redirectTo({ url: '/pages/wallet/wallet?type=wallet' });
 			}
 		}
 	}

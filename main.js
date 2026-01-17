@@ -1,11 +1,17 @@
 import App from './App'
-import {  t, setLanguage } from './locale/index.js'
+import { t, setLanguage } from './locale/index.js'
 
 // #ifndef VUE3
 import Vue from 'vue'
 import './uni.promisify.adaptor'
 Vue.config.productionTip = false
 Vue.prototype.$t = t
+Vue.prototype.noSupport = function () {
+  uni.showToast({
+    title: this.$t('开发中,敬请期待'),
+    icon: 'none'
+  })
+}
 Vue.prototype.$setLanguage = setLanguage
 App.mpType = 'app'
 const app = new Vue({
@@ -19,6 +25,12 @@ import { createSSRApp } from 'vue'
 export function createApp() {
   const app = createSSRApp(App)
   app.config.globalProperties.$t = t
+  app.config.globalProperties.$noSupport = function () {
+    uni.showToast({
+      title: this.$t('开发中,敬请期待'),
+      icon: 'none'
+    })
+  }
   app.config.globalProperties.$setLanguage = setLanguage
   return {
     app

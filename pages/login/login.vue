@@ -75,6 +75,19 @@ export default {
 			}
 		};
 	},
+	mounted() {
+		// 开发模式下自动填充测试账号
+		// #ifdef MP-WEIXIN
+		// 小程序环境不自动填充
+		// #endif
+		// #ifdef APP-PLUS || H5
+		if (process.env.NODE_ENV === 'development') {
+			this.formData.phone = '17876087976';
+			this.formData.password = '1234567';
+			this.isAgreed = true;
+		}
+		// #endif
+	},
 	methods: {
 		async handleLogin() {
 			if (!this.isAgreed) {
@@ -103,7 +116,7 @@ export default {
 					return
 				}
 				res = await userPasswordLogin({
-					phone,
+					phone: this.areaCode + phone,
 					password,
 					terminal: 1,
 					areaCode: this.areaCode,
