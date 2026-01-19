@@ -13,21 +13,12 @@
 			<text class="bindding-title">请保持蓝牙开启状态</text>
 			<text class="bindding-subtitle">正在链接，请耐心等待...</text>
 			<image src="/static/img/img_searching@2x.webp" class="searching-icon"></image>
-			<view class="manual-add-text" @click="openManualAddPopup">
-				<text>找不到您的设备？</text>
-				<text class="highlight">手动添加</text>
-			</view>
 		</view>
 
-		<!-- 手动添加弹窗 -->
-		<confirm-popup :visible="showManualPopup" title="手动添加设备" content="" @cancel="showManualPopup = false"
-			@ok="saveDeviceCode">
-			<input class="popup-input device-input" type="text" placeholder="请输入您的设备串码" v-model="deviceCode" />
-		</confirm-popup>
 
 		<view v-if="status === 'list'" class="list">
 			<!-- 顶部标题 -->
-			<text class="list-title">请绑定搜索到的设备</text>
+			<text class="list-title">{{ foundDevices.length ? '请绑定搜索到的设备' : '未搜索到设备' }}</text>
 
 			<!-- 连接效果图 -->
 			<view class="connection-diagram">
@@ -56,7 +47,7 @@
 			</view>
 
 			<!-- 设备列表区域 -->
-			<view class="device-list-section">
+			<view class="device-list-section" v-if="foundDevices.length">
 				<!-- 列表标题 -->
 				<view class="section-title">搜索到以下设备</view>
 
@@ -69,22 +60,35 @@
 						<!-- 中间设备信息 -->
 						<view class="device-info">
 							<text class="device-name">{{ device.name }}</text>
-							<text class="device-sn">设备编号：{{ device.sn }}</text>
+							<text class="device-deviceId">设备编号：{{ device.deviceId }}</text>
 						</view>
 
 						<!-- 右侧按钮 -->
-						<view :class="['connect-btn', device.connected ? 'connected' : 'available']" @click="handleConnect(device)">
-							{{ device.connected ? '已连接' : '可连接' }}
+						<view :class="['connect-btn', 'connected']" @click="handleConnect(device.deviceId)">
+							连接
 						</view>
 					</view>
 				</view>
 			</view>
+
+			<view class="manual-add-text" @click="openManualAddPopup">
+				<text>找不到您的设备？</text>
+				<text class="highlight">手动添加</text>
+			</view>
+
 		</view>
 
+		<!-- 手动添加弹窗 -->
+		<confirm-popup :visible="showManualPopup" title="手动添加设备" content="" @cancel="showManualPopup = false"
+			@ok="handleConnect(deviceCode)">
+			<input class="popup-input device-input" type="text" placeholder="请输入您的设备串码" v-model="deviceCode" />
+		</confirm-popup>
+
+
 		<!-- 底部按钮 -->
-		<view class="list-footer" v-if="status === 'list'">
-			<view class="use-device-btn" @click="handleUseDevice">
-				去使用设备
+		<view class="list-footer" v-if="status === 'list' && foundDevices.length === 0">
+			<view class="use-device-btn" @click="handleBind">
+				重新搜索
 			</view>
 		</view>
 	</view>
@@ -93,7 +97,9 @@
 <script>
 import NavBack from '../../components/nav-back.vue'
 import ConfirmPopup from '../../components/confirm-popup.vue'
-import { connectAIMASKDevice, searchAIMASKDevice, setDeviceState, setMassageIntensity, setSkinMode } from '../../utils/aimaskDevice.js'
+import { searchAIMASKDevice, setDeviceState, setMassageIntensity, setSkinMode } from '../../utils/aimaskDevice.js'
+import { getDeviceName } from '../../utils/getDeviceName.js';
+import { connectDevice } from '../../utils/deivceManage.js';
 
 export default {
 	components: {
@@ -108,74 +114,87 @@ export default {
 			showManualPopup: false,
 			deviceCode: '',
 			foundDevices: [
-				{
-					name: 'AI面膜',
-					sn: 'A001042',
-					connected: false
-				},
-				{
-					name: '补水喷雾',
-					sn: 'A002157',
-					connected: false
-				},
-				{
-					name: '美容导入仪',
-					sn: 'A003268',
-					connected: true
-				},
+				// {
+				// 	name: 'AI面膜',
+				// 	sn: 'A001042',
+				// 	connected: false
+				// },
 			]
 		}
 	},
 	computed: {
 		title() {
-			return this.status === 'wait' ? 'AI面膜' : '绑定设备'
-		}
+			return '绑定设备'
+		},
+
 	},
 	onLoad(options) {
 		this.type = options.type
+		console.log('当前搜索设备', this.type)
 	},
 	methods: {
 		async handleBind() {
 			this.status = 'bindding'
 			console.log('开始搜索设备...')
-			const list = await searchAIMASKDevice({ timeout: 3000 });
+			const list = await searchAIMASKDevice({ timeout: 5000 });
 			console.log('搜索到的设备列表:', list)
-			if(list.length) {
-				const device = list[0];
-				const connect = await connectAIMASKDevice(device.deviceId, (data) => {
-					console.log('---- 收到设备数据:', data)
-				});
-				console.log('连接结果:', connect)
-				
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-				await setMassageIntensity(connect, 80);
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				await setSkinMode(connect, 2);
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				await setDeviceState(connect, 1);
 
-			
-
-				// const battery = await getDeviceBattery(connect);
-				// console.log('设备电量:', battery)
-				console.log('--操作完成--')
+			for (const item of list) {
+				this.foundDevices.push({
+					name: getDeviceName(this.type),
+					deviceId: item.deviceId,
+					connected: false,
+					connect: item
+				})
 			}
+
+			if (list.length === 0) {
+				uni.showToast({
+					title: '未找到相关设备',
+					duration: 2000,
+					icon: 'none'
+				});
+			}
+			console.log('--搜索完成--')
 			this.status = 'list'
 		},
 		openManualAddPopup() {
 			this.deviceCode = '';
 			this.showManualPopup = true;
 		},
-		saveDeviceCode() {
-			console.log('用户输入的设备串码:', this.deviceCode)
-			this.showManualPopup = false
+		async handleConnect(deviceId) {
+			if (!deviceId) {
+				uni.showToast({
+					title: '设备不正确',
+					duration: 2000,
+					icon: 'error'
+				});
+				return;
+			}
+			uni.showLoading({
+				title: '连接中'
+			});
+			await new Promise(r => setTimeout(() => r(), 300));
+			const res = await connectDevice(this.type, deviceId);
+			uni.hideLoading();
+
+			if (res === false) {
+				uni.showToast({
+					title: '连接失败',
+					duration: 2000,
+					icon: 'error'
+				});
+			} else {
+				uni.navigateBack();
+				uni.showToast({
+					title: '连接成功',
+					duration: 2000,
+					icon: 'none'
+				});
+				console.log('device', res)
+			}
+
 		},
-		handleConnect(device) {
-			console.log('连接设备:', device.name)
-		},
-		handleUseDevice() {
-			console.log('去使用设备')
-		}
 	}
 }
 </script>
@@ -262,16 +281,7 @@ page {
 		margin-bottom: 120rpx;
 	}
 
-	.manual-add-text {
-		font-size: 33rpx;
-		font-weight: 400;
-		color: #C2C9C3;
 
-		.highlight {
-			color: #09AB4D;
-			margin-left: 8rpx;
-		}
-	}
 }
 
 @keyframes breathing {
@@ -429,7 +439,7 @@ page {
 		margin-bottom: 8rpx;
 	}
 
-	.device-sn {
+	.device-deviceId {
 		font-size: 24rpx;
 		color: #9CA29D;
 	}
@@ -455,6 +465,20 @@ page {
 			color: #09AB4D;
 		}
 	}
+
+	.manual-add-text {
+		font-size: 33rpx;
+		font-weight: 400;
+		color: #C2C9C3;
+		text-align: center;
+		margin-top: 400rpx;
+
+		.highlight {
+			color: #09AB4D;
+			margin-left: 8rpx;
+		}
+	}
+
 }
 
 .list-footer {

@@ -29,7 +29,8 @@
 				<view class="card-content" @click="toDevice('mask')">
 					<text class="device-name">AI面膜</text>
 					<text class="device-intro">臻享胶原水光细胞</text>
-					<view class="action-btn" style="background-color: #344D6C;">绑定设备</view>
+					<view class="action-btn" style="background-color: #344D6C;">{{ maskDevice ? '去使用' : '绑定设备'}}</view>
+					<text class="status-indicator" v-if="maskDevice">{{ maskDevice.connected ? '已连接' : '离线' }} | {{ maskDevice.time }}</text>
 				</view>
 			</view>
 
@@ -37,8 +38,8 @@
 				<view class="card-content" @click="toDevice('spray')">
 					<text class="device-name">补水喷雾器</text>
 					<text class="device-intro">纳米喷雾保湿美容</text>
-					<view class="action-btn" style="background-color: #306738;">去使用</view>
-					<text class="status-indicator">已连接 | 21:45</text>
+					<view class="action-btn" style="background-color: #306738;">{{ sprayDevice ? '去使用' : '绑定设备'}}</view>
+					<text class="status-indicator" v-if="sprayDevice">{{ sprayDevice.connected ? '已连接' : '离线' }} | {{ sprayDevice.time }}</text>
 				</view>
 			</view>
 
@@ -46,8 +47,8 @@
 				<view class="card-content" @click="toDevice('bra')">
 					<text class="device-name">AI文胸</text>
 					<text class="device-intro">EMS脉冲技术养护</text>
-					<view class="action-btn" style="background-color: #4E346C;">去使用</view>
-					<text class="status-indicator muted">未链接</text>
+					<view class="action-btn" style="background-color: #4E346C;">{{ braDevice ? '去使用' : '绑定设备'}}</view>
+					<text class="status-indicator muted" v-if="braDevice">{{ braDevice.connected ? '已连接' : '离线' }} | {{ braDevice.time }}</text>
 				</view>
 			</view>
 
@@ -55,8 +56,8 @@
 				<view class="card-content" @click="toDevice('importer')">
 					<text class="device-name">美容导入仪</text>
 					<text class="device-intro">微晶提拉水光肌</text>
-					<view class="action-btn" style="background-color: #673030;">去使用</view>
-					<text class="status-indicator">已连接 | 21:45</text>
+					<view class="action-btn" style="background-color: #673030;">{{ importerDevice ? '去使用' : '绑定设备'}}</view>
+					<text class="status-indicator" v-if="importerDevice">{{ importerDevice.connected ? '已连接' : '离线' }} | {{ importerDevice.time }}</text>
 				</view>
 			</view>
 		</view>
@@ -68,10 +69,30 @@
 <script>
 import { commonGetIndexBanner } from '@/apis/commonApi.js'
 import { userGetInfo } from '@/apis/userApi.js'
+import { toDevice } from '../../utils/toDevice';
+import { getDevice } from '../../utils/deivceManage';
 
 export default {
 	components: {
 
+	},
+	data() {
+		return {
+			// 仅用来判断是否加载webview
+			token: null,
+
+			bannerList: [],
+			userInfo: null,
+
+			// hst增加定时器
+			hstTimer: null,
+
+			// 设备数据
+			maskDevice: null,
+			sprayDevice: null,
+			braDevice: null,
+			importerDevice: null,
+		}
 	},
 	onShow() {
 		const token = uni.getStorageSync('token')
@@ -86,18 +107,13 @@ export default {
 				url: '/pages/login/login',
 			})
 		}
-	},
-	data() {
-		return {
-			// 仅用来判断是否加载webview
-			token: null,
 
-			bannerList: [],
-			userInfo: null,
+		this.maskDevice = getDevice('mask');
+		this.sprayDevice = getDevice('spray');
+		this.braDevice = getDevice('bra');
+		this.importerDevice = getDevice('importer');
 
-			// hst增加定时器
-			hstTimer: null
-		}
+		console.log(this.maskDevice)
 	},
 	methods: {
 		async getIndexBanner() {
@@ -141,11 +157,7 @@ export default {
 				this.userInfo.hst = (Number(this.userInfo.hst) + sNum).toFixed(6);
 			}, 1000);
 		},
-		toDevice(type) {
-			uni.navigateTo({
-				url: `/pages/device/device?type=${type}`
-			})
-		},
+		toDevice: toDevice,
 		toPersonal() {
 			uni.navigateTo({
 				url: '/pages/personal/personal'

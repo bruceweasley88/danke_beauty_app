@@ -20,7 +20,7 @@
         "modules" : {
             "Bluetooth" : {},
             "Camera" : {},
-            "LivePusher" : {}
+            "Barcode" : {}
         },
         /* 应用发布信息 */
         "distribute" : {

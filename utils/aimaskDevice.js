@@ -225,7 +225,7 @@ export const searchAIMASKDevice = (options = {}) => {
  * @description 连接 AI 面膜设备（使用固定UUID）
  * @param {string} deviceId - 设备 ID
  * @param {Function} [onDataReceived] - 数据接收回调（通用）
- * @returns {Promise<{deviceId: string, serviceId: string, writeCharacteristicId: string, notifyCharacteristicId: string}>}
+ * @returns {Promise<{deviceId: string, serviceId: string, writeCharacteristicId: string, notifyCharacteristicId: string}>} | false
  */
 export const connectAIMASKDevice = async (deviceId, onDataReceived) => {
 	// 固定UUID
@@ -247,7 +247,16 @@ export const connectAIMASKDevice = async (deviceId, onDataReceived) => {
 	})
 
 	// 连接设备
-	await Bluetooth.createBLEConnection(deviceId, 10000)
+	console.log('调用连接接口...', deviceId)
+	let res;
+	try {
+		res = await Bluetooth.createBLEConnection(deviceId, 3000)
+	} catch (e) {
+		console.log(e)
+		return false;
+	}
+	console.log('连接接口返回', res);
+
 
 	// 启用 notify
 	console.log('正在启用 notify...')

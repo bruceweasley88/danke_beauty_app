@@ -15,18 +15,23 @@
 
 			<view class="summary-card">
 				<view class="summary-item">
-					<view class="value">50</view>
-					<view class="label">AI面膜耗材</view>
+					<view class="value">{{ summary.type1 }}</view>
+					<view class="label">AI面膜</view>
 				</view>
 				<view class="vertical-line"></view>
 				<view class="summary-item">
-					<view class="value">32</view>
-					<view class="label">补水喷雾耗材</view>
+					<view class="value">{{ summary.type2 }}</view>
+					<view class="label">补水喷雾</view>
 				</view>
 				<view class="vertical-line"></view>
 				<view class="summary-item">
-					<view class="value">40</view>
-					<view class="label">AI文胸耗材</view>
+					<view class="value">{{ summary.type3 }}</view>
+					<view class="label">AI文胸</view>
+				</view>
+				<view class="vertical-line"></view>
+				<view class="summary-item">
+					<view class="value">{{ summary.type4 }}</view>
+					<view class="label">美容导入仪</view>
 				</view>
 			</view>
 		</view>
@@ -37,16 +42,19 @@
 			</view>
 
 			<view class="record-list">
+				<view v-if="recordList.length === 0" class="empty-tip">
+					<text class="empty-text">- 暂无记录 -</text>
+				</view>
 				<view class="record-card" v-for="(item, index) in recordList" :key="index">
-					<view class="icon-box"></view>
+					<view class="icon-box" :class="`icon-${consumableTypeToType(item.consumableType)}`"></view>
 
 					<view class="content-box">
-						<text class="name">{{ item.name }}</text>
+						<text class="name">{{ item.consumableName }}</text>
 					</view>
 
 					<view class="status-box">
-						<view class="amount">+{{ item.count }}</view>
-						<view class="time">{{ item.date }}</view>
+						<view class="amount">+1</view>
+						<view class="time">{{ formatTime(item.useTime) }}</view>
 					</view>
 				</view>
 			</view>
@@ -56,27 +64,65 @@
 
 <script>
 import NavBack from '../../components/nav-back.vue'
+import { getUserConsumableRecords } from '../../apis/consumableApi.js'
 export default {
 	components: {
 		NavBack,
 	},
 	data() {
 		return {
-			// 模拟列表数据
-			recordList: [
-				{ name: 'AI面膜耗材', count: 1, date: '2025.12.21 22:19' },
-				{ name: 'AI面膜耗材', count: 1, date: '2025.12.11 22:19' },
-				{ name: 'AI面膜耗材', count: 1, date: '2025.12.09 22:19' },
-				{ name: '补水喷雾耗材', count: 1, date: '2025.11.21 22:19' },
-				{ name: 'AI文胸耗材', count: 1, date: '2025.11.16 22:19' }
-			]
+			// 统计数据
+			summary: {
+				type1: 0,  // 面膜数量
+				type2: 0,  // 补水喷雾数量
+				type3: 0,  // 文胸数量
+				type4: 0   // 美容导入仪数量
+			},
+			// 记录列表
+			recordList: []
 		};
 	},
+	async onLoad() {
+		await this.fetchConsumableRecords()
+	},
 	methods: {
+		async fetchConsumableRecords() {
+			const res = await getUserConsumableRecords({})
+
+			if (res.data && res.data.length > 0) {
+				// 统计各类型数量
+				this.summary.type1 = res.data.filter(item => item.consumableType === 1).length
+				this.summary.type2 = res.data.filter(item => item.consumableType === 2).length
+				this.summary.type3 = res.data.filter(item => item.consumableType === 3).length
+				this.summary.type4 = res.data.filter(item => item.consumableType === 4).length
+
+				// 转换记录列表数据
+				this.recordList = res.data
+			}
+		},
+		formatTime(time) {
+			if (!time) return '';
+			const date = new Date(time);
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const hour = String(date.getHours()).padStart(2, '0');
+			const minute = String(date.getMinutes()).padStart(2, '0');
+			return `${year}-${month}-${day} ${hour}:${minute}`;
+		},
 		toAddConsumable() {
 			uni.navigateTo({
-				url: '/pages/add-consumable/add-consumable'
+				url: '/pages/sn/sn'
 			})
+		},
+		consumableTypeToType(consumableType) {
+			switch (consumableType) {
+				case 1: return 'mask';
+				case 2: return 'spray';
+				case 3: return 'bra';
+				case 4: return 'importer';
+			}
+
 		}
 	}
 };
@@ -164,6 +210,16 @@ $black-4: #C2C9C3;
 
 /* 下方记录列表 */
 .record-list {
+	.empty-tip {
+		text-align: center;
+		padding: 100rpx 0;
+
+		.empty-text {
+			font-size: 28rpx;
+			color: $black-3;
+		}
+	}
+
 	.record-card {
 		background-color: #F8FAF9;
 		border-radius: 24rpx;
@@ -179,8 +235,25 @@ $black-4: #C2C9C3;
 			margin-right: 24rpx;
 			flex-shrink: 0;
 			background-size: cover;
+		}
+
+		.icon-mask {
 			background-image: url('/static/device_img/img_aimms@2x.png');
 		}
+
+		.icon-spray {
+			background-image: url('/static/device_img/img_bspws@2x.png');
+		}
+
+		.icon-bra {
+			background-image: url('/static/device_img/img_aiwxs@2x.png');
+		}
+
+		.icon-importer {
+			background-image: url('/static/device_img/img_dry@2x.png');
+		}
+
+
 
 		.content-box {
 			flex: 1;

@@ -25,7 +25,7 @@
 							</view>
 							<view class="right-box">
 								<view class="status">{{ item.status === 1 ? '已提取' : '已获得' }}</view>
-								<view class="time">{{ new Date(item.createTime).toLocaleString() }}</view>
+								<view class="time">{{ formatDateTime(item.createTime) }}</view>
 							</view>
 						</view>
 
@@ -94,6 +94,29 @@
 			async getReceiveList() {
 				const res = await coinRecordGetList({ page: 1, limit: 9999, type: 1 });
 				this.receiveList = res.data || [];
+			},
+			formatDateTime(timeStr) {
+				if (!timeStr) return ''
+				if (typeof timeStr !== 'string') {
+					// 如果是时间戳或Date对象，先转换为字符串
+					const date = new Date(timeStr)
+					if (isNaN(date.getTime())) return timeStr
+					const year = date.getFullYear()
+					const month = String(date.getMonth() + 1).padStart(2, '0')
+					const day = String(date.getDate()).padStart(2, '0')
+					const hours = String(date.getHours()).padStart(2, '0')
+					const minutes = String(date.getMinutes()).padStart(2, '0')
+					return `${year}-${month}-${day} ${hours}:${minutes}`
+				}
+
+				// "2026-01-16 10:30:00" → "2026-01-16 10:30"
+				const parts = timeStr.split(' ')
+				if (parts.length < 2) return timeStr
+
+				const [date, time] = parts
+				const formattedTime = time.substring(0, 5)  // 取 "10:30"
+
+				return `${date} ${formattedTime}`
 			},
 			onWithdrawClick() {
 				uni.navigateTo({

@@ -403,6 +403,7 @@ export default {
 				title: '保存中...'
 			});
 
+			console.log("保存数据", this.userInfo)
 			const res = await userEditInfo(this.userInfo);
 
 			uni.hideLoading();

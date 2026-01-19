@@ -8,7 +8,7 @@
       <view class="main-title">请扫码添加{{ typeName }}SN码</view>
       <view class="sub-description">
         <view>添加{{ typeName }}SN码后，可获得对应的积分</view>
-        <view>获取到的积分信息可以在耗材记录中查看</view>
+        <view>获取到的积分信息可以在我的积分中查看</view>
       </view>
     </view>
 

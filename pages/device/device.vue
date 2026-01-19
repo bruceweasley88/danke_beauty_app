@@ -7,11 +7,11 @@
 				<view class="device-icon-wrapper" :class="'icon-' + type">
 					<view class="icon-placeholder"></view>
 				</view>
-				<view class="device-info">
-					<text class="device-id">A001042</text>
+				<view class="device-info" v-if="device">
+					<text class="device-id">{{ device.deviceId }}</text>
 					<view class="status-tag">
-						<view class="dot"></view>
-						<text>已连接 | 2025.11.21 20:48</text>
+						<view class="dot" :class="{ offline: !device.connected }"></view>
+						<text>{{ device.connected ? '已连接' : '离线' }} | {{ device.time }}</text>
 					</view>
 				</view>
 				<view class="warning-tips">
@@ -24,7 +24,7 @@
 				<view class="card-title">设备模式</view>
 				<view class="mode-group">
 					<view v-for="(item, index) in models" :key="index" class="mode-item"
-						:class="{ active: currentMode === index }" @click="currentMode = index">
+						:class="{ active: currentMode === index }" @click="setMode(index)">
 						{{ item }}
 					</view>
 				</view>
@@ -62,11 +62,11 @@
 				<view class="action-icon-bg add-icon"></view>
 				<text>添加耗材</text>
 			</view>
-			<view class="action-item main" v-if="support.start">
-				<view class="start-btn" @click="toBinding" hover-class="hover">
+			<view class="action-item main" v-if="support.start" @click="start">
+				<view class="start-btn" hover-class="hover">
 					<view class="power-icon"></view>
 				</view>
-				<text class="active-text">开启仪器</text>
+				<text class="active-text">{{ status === 'stop' ? '开启仪器' : '关闭' }}</text>
 			</view>
 			<view class="action-item" @click="toConsumableList">
 				<view class="action-icon-bg record-icon"></view>
@@ -79,13 +79,14 @@
 <script>
 import NavBack from '../../components/nav-back.vue'
 import ConsumableModalCard from '../../components/consumable-modal-card.vue'
+import { connectDevice, getDevice } from '../../utils/deivceManage.js';
+import { getDeviceName } from '../../utils/getDeviceName';
+import { setDeviceState, setMassageIntensity, setSkinMode } from '../../utils/aimaskDevice.js';
 
 export default {
 	components: {
 		NavBack,
 		ConsumableModalCard,
-	},
-	onShow() {
 	},
 	data() {
 		return {
@@ -94,20 +95,23 @@ export default {
 			currentMode: 0,
 			intensity: 7,
 			isDragging: false,
+
+			// 设备对象
+			device: null,
+
+			//
+			status: 'stop', // stop starting
 		}
 	},
 	onLoad(options) {
 		this.type = options.type;
+		this.connect();
+	},
+	onShow() {
 	},
 	computed: {
 		title() {
-			const titleMap = {
-				mask: 'AI面膜',
-				spray: '补水喷雾器',
-				importer: '美容导入仪',
-				bra: 'AI文胸'
-			};
-			return titleMap[this.type] || 'AI面膜';
+			return getDeviceName(this.type)
 		},
 		support() {
 
@@ -125,10 +129,66 @@ export default {
 		}
 	},
 	methods: {
-		changeIntensity(val) {
+		// 启动
+		async start() {
+			// 更新下状态,有时候会有异步问题
+			this.device = getDevice(this.type);
+
+			// 校验
+			if (!this.device.connected) {
+				uni.showToast({
+					title: '请连接设备',
+					icon: 'error'
+				});
+				return;
+			}
+
+			// 开始处理
+			const connect = this.device.connect;
+			if (this.status === 'starting') {
+				uni.showLoading({
+					title: '停止中...'
+				});
+				setDeviceState(connect, 0);
+				await new Promise(r => setTimeout(r, 500));
+				this.status = 'stop'
+			} else {
+				uni.showLoading({
+					title: '开启中...'
+				});
+				setMassageIntensity(connect, this.intensity);
+				await new Promise(r => setTimeout(r, 500));
+				setSkinMode(connect, this.currentMode + 1);
+				await new Promise(r => setTimeout(r, 500));
+				setDeviceState(connect, 1);
+				this.status = 'starting'
+			}
+			uni.hideLoading();
+		},
+		// 设置强度
+		async changeIntensity(val) {
 			let res = this.intensity + val;
 			if (res >= 1 && res <= 8) {
 				this.intensity = res;
+			}
+			this.updateIntensityStatus();
+		},
+		async updateIntensityStatus() {
+			if (this.status === 'starting') {
+				uni.showLoading();
+				setMassageIntensity(this.device.connect, this.intensity);
+				await new Promise(r => setTimeout(r, 500));
+				uni.hideLoading();
+			}
+		},
+		// 设置模式
+		async setMode(index) {
+			this.currentMode = index;
+			if (this.status === 'starting') {
+				uni.showLoading();
+				setSkinMode(this.device.connect, this.currentMode);
+				await new Promise(r => setTimeout(r, 500));
+				uni.hideLoading();
 			}
 		},
 		handleDragStart(e) {
@@ -141,6 +201,7 @@ export default {
 		},
 		handleDragEnd() {
 			this.isDragging = false;
+			this.updateIntensityStatus();
 		},
 		updateIntensityFromTouch(e) {
 			const touch = e.touches[0];
@@ -155,9 +216,26 @@ export default {
 				}
 			});
 		},
+		async connect() {
+			let device = getDevice(this.type);
+			if (!device) {
+				this.toBinding();
+				return;
+			}
+			this.device = device;
+
+
+			if (!device.connected) {
+				const _device = await connectDevice(this.type, device.deviceId);
+				if (_device) {
+					this.device = _device;
+				}
+			}
+
+		},
 		toBinding() {
 			uni.redirectTo({
-				url: '/pages/bindding/bindding'
+				url: '/pages/bindding/bindding?type=' + this.type
 			})
 		},
 		toConsumableList() {
@@ -210,7 +288,7 @@ page {
 	.content {
 		padding: 0 40rpx;
 		flex: 1;
-		margin-bottom: 230rpx;
+		margin-bottom: 290rpx;
 	}
 }
 
@@ -269,6 +347,10 @@ page {
 				background-color: $green-2;
 				border-radius: 50%;
 				margin-right: 12rpx;
+
+				&.offline {
+					background-color: #FF4444;
+				}
 			}
 		}
 	}
@@ -289,7 +371,7 @@ page {
 .card {
 	background: #FFFFFF;
 	border-radius: 60rpx;
-	padding: 80rpx 48rpx 64rpx;
+	padding: 40rpx 48rpx 64rpx;
 	margin-bottom: 30rpx;
 
 	.card-title {

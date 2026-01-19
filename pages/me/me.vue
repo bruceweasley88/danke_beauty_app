@@ -142,6 +142,8 @@ export default {
 			})
 		},
 		toLanguage() {
+			this.$noSupport();
+			return;
 			uni.navigateTo({
 				url: '/pages/language/language'
 			})

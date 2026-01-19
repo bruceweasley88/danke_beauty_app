@@ -10,28 +10,29 @@
 		</view>
 
 		<scroll-view scroll-y class="device-list">
-			<view class="device-card" hover-class="card-hover" @click="toDevice('mask')">
-				<view class="device-icon-placeholder icon-mask"></view>
+
+			<view v-for="type in typeList" class="device-card" hover-class="card-hover" @click="toDevice(type)">
+				<view class="device-icon-placeholder" :class="`icon-${type}`"></view>
 
 				<view class="device-info">
-					<view class="name">AI面膜</view>
-					<view class="sn">设备编号：A001042</view>
+					<view class="name">{{ getDeviceName(type) }}</view>
+					<view class="sn">设备编号：{{ getDevice(type) ? getDevice(type).deviceId : '未绑定' }}</view>
 				</view>
 
-				<view class="device-status-box">
+				<view class="device-status-box" v-if="getDevice(type)">
 					<view class="status-dot online">
-						<view class="dot"></view>
-						<text>已连接</text>
+						<view class="dot" :class="getDevice(type).connected ? '' : 'offline'"></view>
+						<text>{{ getDevice(type).connected ? '已连接' : '未连接' }}</text>
 					</view>
-					<view class="time">2024-05-12 10:12</view>
+					<view class="time">{{ getDevice(type).time }}</view>
 				</view>
 
-				<view class="delete-icon" @click.stop="$noSupport()">
+				<view class="delete-icon" @click.stop="delDevice(type)" v-if="getDevice(type)">
 					<text class="close-symbol">×</text>
 				</view>
 			</view>
 
-			<view class="device-card" hover-class="card-hover" @click="toDevice('spray')">
+			<!-- <view class="device-card" hover-class="card-hover" @click="toDevice('spray')">
 				<view class="device-icon-placeholder icon-spray"></view>
 
 				<view class="device-info">
@@ -84,7 +85,7 @@
 				<view class="delete-icon" @click.stop="$noSupport()">
 					<text class="close-symbol">×</text>
 				</view>
-			</view>
+			</view> -->
 		</scroll-view>
 
 		<!-- <view class="footer-action">
@@ -95,22 +96,33 @@
 
 <script>
 import NavBack from '../../components/nav-back.vue'
+import { delDevice, getDevice } from '../../utils/deivceManage.js';
+import { getDeviceName } from '../../utils/getDeviceName';
+import { toDevice } from '../../utils/toDevice.js';
 export default {
 	components: {
 		NavBack,
 	},
 	data() {
 		return {
+			typeList: ['mask', 'spray', 'bra', 'importer']
 		};
+	},
+	onShow() {
+		setTimeout(() => {
+			this.$forceUpdate()
+		}, 2);
 	},
 	methods: {
 		handleAddDevice() {
 			console.log('点击添加设备');
 		},
-		toDevice(type) {
-			uni.navigateTo({
-				url: `/pages/device/device?type=${type}`
-			})
+		toDevice: toDevice,
+		getDeviceName: getDeviceName,
+		getDevice: getDevice,
+		async delDevice(type) {
+			await delDevice(type, true)
+			this.$forceUpdate();
 		}
 	}
 };
