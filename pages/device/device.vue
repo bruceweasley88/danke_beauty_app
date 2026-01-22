@@ -109,6 +109,12 @@ export default {
 	},
 	onShow() {
 	},
+	onUnload() {
+		// 页面卸载时停止设备
+		if (this.status === 'starting' && this.device && this.device.connect) {
+			setDeviceState(this.device.connect, 0);
+		}
+	},
 	computed: {
 		title() {
 			return getDeviceName(this.type)

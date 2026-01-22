@@ -49,7 +49,7 @@
 			</view>
 		</view>
 
-		<country-picker :visible="showCountryPicker" v-model="areaCode" @cancel="showCountryPicker = false"
+		<country-picker :visible="showCountryPicker" :value="areaCode" @input="areaCode = $event" @cancel="showCountryPicker = false"
 			@ok="showCountryPicker = false" />
 	</view>
 </template>

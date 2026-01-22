@@ -46,7 +46,7 @@
 					<view class="forgot-pwd" @click="toForgot">忘记密码</view>
 				</view>
 
-				<button class="login-btn" @click="handleLogin">立即登录</button>
+				<button class="login-btn" @click="handleLogin">注册新账号</button>
 
 				<view class="agreement-section">
 					<radio :checked="isAgreed" @click="isAgreed = !isAgreed" color="#09AB4D" style="transform:scale(0.7)" />
@@ -57,7 +57,7 @@
 			</view>
 		</view>
 
-		<country-picker :visible="showCountryPicker" v-model="areaCode" @cancel="showCountryPicker = false"
+		<country-picker :visible="showCountryPicker" :value="areaCode" @input="areaCode = $event" @cancel="showCountryPicker = false"
 			@ok="showCountryPicker = false" />
 	</view>
 </template>

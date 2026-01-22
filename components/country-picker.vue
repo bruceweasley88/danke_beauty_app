@@ -45,15 +45,6 @@ export default {
 			if (val && this.countryList.length === 0) {
 				this.loadCountryList()
 			}
-			if (val && this.selectedCode !== this.value) {
-				this.selectedCode = this.value
-			}
-		},
-		value: {
-			handler(val) {
-				this.selectedCode = val
-			},
-			immediate: true
 		}
 	},
 	methods: {
@@ -63,18 +54,26 @@ export default {
 				{ code: '86', destinationCn: '中国' },
 				...res.data.filter(item => item.code.length < 4)
 			]
+			// 加载完成后，如果 selectedCode 还是初始值，则同步
+			if (!this.value || this.selectedCode === '86') {
+				this.selectedCode = this.value || '86'
+			}
 		},
 		onSelect(item) {
 			this.selectedCode = item.code
 		},
 		handleCancel() {
+			this.selectedCode = this.value
 			this.$emit('cancel')
 		},
 		handleOk() {
-			this.$emit('change', this.selectedCode)
+			console.log('handleOk - selectedCode:', this.selectedCode)
 			this.$emit('input', this.selectedCode)
 			this.$emit('ok')
 		}
+	},
+	created() {
+		this.selectedCode = this.value || '86'
 	}
 }
 </script>

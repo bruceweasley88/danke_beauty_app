@@ -1,8 +1,6 @@
-import en from './en.json'
 import zh from './zh.json'
 
 const messages = {
-	en,
 	zh,
 	'zh-Hans': zh
 }
@@ -13,7 +11,7 @@ export function setLanguage(lang) {
 }
 
 export function getLanguage() {
-	return uni.getLocale() || 'en'
+	return uni.getLocale() || 'zh'
 }
 
 export function t(key) {

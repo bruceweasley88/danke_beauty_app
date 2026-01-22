@@ -46,7 +46,7 @@
 					<view class="forgot-pwd" @click="toLogin">登录</view>
 				</view>
 
-				<button class="login-btn" @click="handleLogin">立即登录</button>
+				<button class="login-btn" @click="handleLogin">修改密码</button>
 
 				<view class="agreement-section">
 					<radio :checked="isAgreed" @click="isAgreed = !isAgreed" color="#09AB4D" style="transform:scale(0.7)" />
@@ -57,7 +57,7 @@
 			</view>
 		</view>
 
-		<CountryPicker :visible="showCountryPicker" v-model="areaCode" @cancel="showCountryPicker = false"
+		<CountryPicker :visible="showCountryPicker" :value="areaCode" @input="areaCode = $event" @cancel="showCountryPicker = false"
 			@ok="showCountryPicker = false" />
 	</view>
 </template>
@@ -165,7 +165,7 @@ export default {
 					return
 				}
 				await updatePsd({
-					phone,
+					phone: this.areaCode + phone,
 					verifyCode: code,
 					newPassWord: password
 				})
