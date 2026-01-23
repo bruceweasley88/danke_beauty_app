@@ -1,6 +1,6 @@
 <template>
 	<view class="user-manual-page">
-		<nav-back title="使用说明"></nav-back>
+		<nav-back :title="$t('userManual.title')"></nav-back>
 		<view class="content-container">
 			<rich-text v-if="content" :nodes="content"></rich-text>
 		</view>

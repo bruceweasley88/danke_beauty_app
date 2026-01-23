@@ -1,6 +1,6 @@
 <template>
 	<view class="page-container">
-		<nav-back title="提取成功"></nav-back>
+		<nav-back :title="$t('success.title')"></nav-back>
 		
 		<view class="status-box">
 			<image 
@@ -8,12 +8,12 @@
 				class="success-icon" 
 				mode="aspectFit"
 			></image>
-			<text class="title">提取成功</text>
-			<text class="subtitle">已提取到钱包，请去钱包查看金额是否已收到</text>
+			<text class="title">{{ $t('success.title') }}</text>
+			<text class="subtitle">{{ $t('success.description') }}</text>
 		</view>
 
 		<view class="footer">
-			<view class="btn-wallet" @tap="handleGoWallet">去钱包</view>
+			<view class="btn-wallet" @tap="handleGoWallet">{{ $t('success.goToWallet') }}</view>
 		</view>
 	</view>
 </template>

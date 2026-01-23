@@ -8,9 +8,9 @@
       <slot />
 
       <view class="action">
-        <view class="cancel click-active-max" @click="handleCancel">cancel</view>
+        <view class="cancel click-active-max" @click="handleCancel">{{ $t('common.cancel') }}</view>
         <view class="m">|</view>
-        <view class="ok click-active-max" @click="handleOk">ok</view>
+        <view class="ok click-active-max" @click="handleOk">{{ $t('common.confirm') }}</view>
       </view>
     </view>
   </view>

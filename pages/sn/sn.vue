@@ -1,7 +1,7 @@
 <template>
 	<view class="page-container">
 		<!-- 扫描提示文字 -->
-		<cover-view class="scan-tip">请对准设备二维码，即可自动扫描</cover-view>
+		<cover-view class="scan-tip">{{ $t('scan.tip') }}</cover-view>
 
 		<!-- 底部按钮区域 -->
 		<cover-view class="action-buttons">
@@ -9,19 +9,19 @@
 				<cover-view class="icon-circle">
 					<cover-image src="/static/scan_icon/icon_saomas@2x.webp" class="icon-img"></cover-image>
 				</cover-view>
-				<cover-view class="btn-title">扫码</cover-view>
+				<cover-view class="btn-title">{{ $t('scan.scan') }}</cover-view>
 			</cover-view>
 			<cover-view class="action-btn" @tap="handleAlbum">
 				<cover-view class="icon-circle">
 					<cover-image @tap="handleAlbum" src="/static/scan_icon/icon_photo@2x.webp" class="icon-img"></cover-image>
 				</cover-view>
-				<cover-view class="btn-title">相册</cover-view>
+				<cover-view class="btn-title">{{ $t('scan.album') }}</cover-view>
 			</cover-view>
 			<cover-view class="action-btn" @tap="handleManual">
 				<cover-view class="icon-circle">
 					<cover-image @tap="handleManual()" src="/static/scan_icon/icon_input@2x.webp" class="icon-img"></cover-image>
 				</cover-view>
-				<cover-view class="btn-title">手动输入</cover-view>
+				<cover-view class="btn-title">{{ $t('scan.manualInput') }}</cover-view>
 			</cover-view>
 		</cover-view>
 	</view>
@@ -97,7 +97,7 @@ export default {
 						console.log('扫码结果:', result);
 						this.handleManual(result)
 					}, () => {
-						uni.showToast({ title: '未识别到二维码', icon: 'none' });
+						uni.showToast({ title: this.$t('scan.qrNotRecognized'), icon: 'none' });
 					});
 				}
 			});

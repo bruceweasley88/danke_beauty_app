@@ -1,24 +1,24 @@
 <template>
 	<view class="bindding-page">
-		<nav-back :title="title"></nav-back>
+		<nav-back :title="$t('device.bindDevice')"></nav-back>
 
 
 		<view v-if="status === 'wait'" class="wait">
 			<image src="/static/img/img_search@2x.webp" class="wait-img"></image>
-			<text class="wait-text">目前还没有配对的设备 立即去绑定</text>
-			<view class="wait-btn" @click="handleBind">绑定设备</view>
+			<text class="wait-text">{{ $t('device.noPairedDevice') }}</text>
+			<view class="wait-btn" @click="handleBind">{{ $t('device.bindDevice') }}</view>
 		</view>
 
 		<view v-if="status === 'bindding'" class="bindding">
-			<text class="bindding-title">请保持蓝牙开启状态</text>
-			<text class="bindding-subtitle">正在链接，请耐心等待...</text>
+			<text class="bindding-title">{{ $t('device.keepBluetoothOn') }}</text>
+			<text class="bindding-subtitle">{{ $t('device.waitingLink') }}</text>
 			<image src="/static/img/img_searching@2x.webp" class="searching-icon"></image>
 		</view>
 
 
 		<view v-if="status === 'list'" class="list">
 			<!-- 顶部标题 -->
-			<text class="list-title">{{ foundDevices.length ? '请绑定搜索到的设备' : '未搜索到设备' }}</text>
+			<text class="list-title">{{ foundDevices.length ? $t('device.pleaseBindDevice') : $t('device.noDeviceFound') }}</text>
 
 			<!-- 连接效果图 -->
 			<view class="connection-diagram">
@@ -27,7 +27,7 @@
 					<view class="icon-container">
 						<image src="/static/img/img_bluetooth@2x.webp" class="bluetooth-icon"></image>
 					</view>
-					<text class="item-label">蓝牙开启</text>
+					<text class="item-label">{{ $t('device.bluetoothOn') }}</text>
 				</view>
 
 				<!-- 中间：三个圆点 -->
@@ -42,14 +42,14 @@
 					<view class="icon-container">
 						<image src="/static/img/img_phone@2x.webp" class="phone-icon"></image>
 					</view>
-					<text class="item-label">链接手机</text>
+					<text class="item-label">{{ $t('device.linkPhone') }}</text>
 				</view>
 			</view>
 
 			<!-- 设备列表区域 -->
 			<view class="device-list-section" v-if="foundDevices.length">
 				<!-- 列表标题 -->
-				<view class="section-title">搜索到以下设备</view>
+				<view class="section-title">{{ $t('device.foundDevices') }}</view>
 
 				<!-- 设备列表 -->
 				<view class="device-list">
@@ -60,35 +60,35 @@
 						<!-- 中间设备信息 -->
 						<view class="device-info">
 							<text class="device-name">{{ device.name }}</text>
-							<text class="device-deviceId">设备编号：{{ device.deviceId }}</text>
+							<text class="device-deviceId">{{ $t('device.deviceId') }}：{{ device.deviceId }}</text>
 						</view>
 
 						<!-- 右侧按钮 -->
 						<view :class="['connect-btn', 'connected']" @click="handleConnect(device.deviceId)">
-							连接
+							{{ $t('device.connect') }}
 						</view>
 					</view>
 				</view>
 			</view>
 
 			<view class="manual-add-text" @click="openManualAddPopup">
-				<text>找不到您的设备？</text>
-				<text class="highlight">手动添加</text>
+				<text>{{ $t('device.cannotFindDevice') }}</text>
+				<text class="highlight">{{ $t('device.manualAdd') }}</text>
 			</view>
 
 		</view>
 
 		<!-- 手动添加弹窗 -->
-		<confirm-popup :visible="showManualPopup" title="手动添加设备" content="" @cancel="showManualPopup = false"
+		<confirm-popup :visible="showManualPopup" :title="$t('device.manualAddDevice')" content="" @cancel="showManualPopup = false"
 			@ok="handleConnect(deviceCode)">
-			<input class="popup-input device-input" type="text" placeholder="请输入您的设备串码" v-model="deviceCode" />
+			<input class="popup-input device-input" type="text" :placeholder="$t('device.inputDeviceCode')" v-model="deviceCode" />
 		</confirm-popup>
 
 
 		<!-- 底部按钮 -->
 		<view class="list-footer" v-if="status === 'list' && foundDevices.length === 0">
 			<view class="use-device-btn" @click="handleBind">
-				重新搜索
+				{{ $t('device.rescan') }}
 			</view>
 		</view>
 	</view>
@@ -124,7 +124,7 @@ export default {
 	},
 	computed: {
 		title() {
-			return '绑定设备'
+			return this.$t('device.bindDevice')
 		},
 
 	},
@@ -150,7 +150,7 @@ export default {
 
 			if (list.length === 0) {
 				uni.showToast({
-					title: '未找到相关设备',
+					title: this.$t('device.deviceNotFound'),
 					duration: 2000,
 					icon: 'none'
 				});
@@ -165,14 +165,14 @@ export default {
 		async handleConnect(deviceId) {
 			if (!deviceId) {
 				uni.showToast({
-					title: '设备不正确',
+					title: this.$t('device.invalidDevice'),
 					duration: 2000,
 					icon: 'error'
 				});
 				return;
 			}
 			uni.showLoading({
-				title: '连接中'
+				title: this.$t('device.connecting')
 			});
 			await new Promise(r => setTimeout(() => r(), 300));
 			const res = await connectDevice(this.type, deviceId);
@@ -180,14 +180,14 @@ export default {
 
 			if (res === false) {
 				uni.showToast({
-					title: '连接失败',
+					title: this.$t('device.connectFail'),
 					duration: 2000,
 					icon: 'error'
 				});
 			} else {
 				uni.navigateBack();
 				uni.showToast({
-					title: '连接成功',
+					title: this.$t('device.connectSuccess'),
 					duration: 2000,
 					icon: 'none'
 				});

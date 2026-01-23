@@ -1,9 +1,9 @@
 <template>
 	<view class="device-container">
 
-		<nav-back title="关于我们"></nav-back>
+		<nav-back :title="$t('device.allDevices')"></nav-back>
 		<view class="header-section">
-			<text class="title">全部设备</text>
+			<text class="title">{{ $t('device.allDevices') }}</text>
 			<text class="manage-btn">
 				<!-- 管理 -->
 			</text>
@@ -16,13 +16,13 @@
 
 				<view class="device-info">
 					<view class="name">{{ getDeviceName(type) }}</view>
-					<view class="sn">设备编号：{{ getDevice(type) ? getDevice(type).deviceId : '未绑定' }}</view>
+					<view class="sn">{{ $t('device.deviceId') }}：{{ getDevice(type) ? getDevice(type).deviceId : $t('common.unbound') }}</view>
 				</view>
 
 				<view class="device-status-box" v-if="getDevice(type)">
 					<view class="status-dot online">
 						<view class="dot" :class="getDevice(type).connected ? '' : 'offline'"></view>
-						<text>{{ getDevice(type).connected ? '已连接' : '未连接' }}</text>
+						<text>{{ getDevice(type).connected ? $t('device.connected') : $t('device.disconnected') }}</text>
 					</view>
 					<view class="time">{{ getDevice(type).time }}</view>
 				</view>
@@ -32,60 +32,6 @@
 				</view>
 			</view>
 
-			<!-- <view class="device-card" hover-class="card-hover" @click="toDevice('spray')">
-				<view class="device-icon-placeholder icon-spray"></view>
-
-				<view class="device-info">
-					<view class="name">补水喷雾</view>
-					<view class="sn">设备编号：A002157</view>
-				</view>
-
-				<view class="device-status-box">
-					<view class="status-dot offline">
-						<view class="dot"></view>
-						<text>未连接</text>
-					</view>
-					<view class="time">2024-05-12 10:12</view>
-				</view>
-			</view>
-
-			<view class="device-card" hover-class="card-hover" @click="toDevice('bra')">
-				<view class="device-icon-placeholder icon-bra"></view>
-
-				<view class="device-info">
-					<view class="name">AI文胸</view>
-					<view class="sn">设备编号：A002157</view>
-				</view>
-
-				<view class="device-status-box">
-					<view class="status-dot offline">
-						<view class="dot"></view>
-						<text>未连接</text>
-					</view>
-					<view class="time">2024-05-12 10:12</view>
-				</view>
-			</view>
-
-			<view class="device-card" hover-class="card-hover" @click="toDevice('importer')">
-				<view class="device-icon-placeholder icon-importer"></view>
-
-				<view class="device-info">
-					<view class="name">美容导入仪</view>
-					<view class="sn">设备编号：A001042</view>
-				</view>
-
-				<view class="device-status-box">
-					<view class="status-dot online">
-						<view class="dot"></view>
-						<text>已连接</text>
-					</view>
-					<view class="time">2024-05-12 10:12</view>
-				</view>
-
-				<view class="delete-icon" @click.stop="$noSupport()">
-					<text class="close-symbol">×</text>
-				</view>
-			</view> -->
 		</scroll-view>
 
 		<!-- <view class="footer-action">

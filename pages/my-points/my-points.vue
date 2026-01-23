@@ -1,10 +1,10 @@
 <template>
 	<view class="my-points-page">
-		<nav-back title="我的积分"></nav-back>
+		<nav-back :title="$t('myPoints.title')"></nav-back>
 		<points :point="userInfo.hst || 0" :showDetail="false"></points>
 
 		<view class="detail-container">
-			<view class="detail-title">积分详情</view>
+			<view class="detail-title">{{ $t('myPoints.detailTitle') }}</view>
 
 			<view class="list-card">
 				<view class="tabs">
@@ -24,19 +24,19 @@
 								<text class="amount">{{ item.amount }}</text>
 							</view>
 							<view class="right-box">
-								<view class="status">{{ item.status === 1 ? '已提取' : '已获得' }}</view>
+								<view class="status">{{ item.status === 1 ? $t('myPoints.statusWithdrawn') : $t('myPoints.statusReceived') }}</view>
 								<view class="time">{{ formatDateTime(item.createTime) }}</view>
 							</view>
 						</view>
 
-						<view class="no-more">- 暂无更多记录 -</view>
+						<view class="no-more">{{ $t('myPoints.noMoreRecord') }}</view>
 					</view>
 				</scroll-view>
 			</view>
 		</view>
 
 		<view class="footer-btn-box">
-			<button class="withdraw-btn" @tap="onWithdrawClick">提取积分到钱包</button>
+			<button class="withdraw-btn" @tap="onWithdrawClick">{{ $t('myPoints.withdrawToWallet') }}</button>
 		</view>
 	</view>
 </template>
@@ -58,12 +58,13 @@
 			return {
 				userInfo: {},
 				currentTab: 0,
-				tabList: ['全部记录', '提取记录', '获得记录'],
+				tabList: [],
 				withdrawList: [],
 				receiveList: []
 			}
 		},
 		async onShow() {
+			this.tabList = this.localizedTabList;
 			this.getUserInfo();
 			await Promise.all([
 				this.getWithdrawList(),
@@ -71,6 +72,13 @@
 			]);
 		},
 		computed: {
+			localizedTabList() {
+				return [
+					this.$t('myPoints.tabAll'),
+					this.$t('myPoints.tabWithdraw'),
+					this.$t('myPoints.tabReceive')
+				];
+			},
 			filteredList() {
 				let allList = [
 					...this.withdrawList.map(item => ({ ...item, status: 1 })),

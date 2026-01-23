@@ -1,6 +1,6 @@
 <template>
 	<view class="service-agreement-page">
-		<nav-back title="服务协议"></nav-back>
+		<nav-back :title="$t('serviceAgreement.title')"></nav-back>
 		<view class="content-container">
 			<rich-text v-if="content" :nodes="content"></rich-text>
 		</view>

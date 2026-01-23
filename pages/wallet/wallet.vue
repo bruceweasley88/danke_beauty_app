@@ -1,25 +1,21 @@
 <template>
 	<view class="wallet-page" :class="(!userInfo.walletAddress || type === 'address') ? 'wallet-page-white' : ''">
-		<nav-back :title="type === 'wallet' ? '我的钱包' : '钱包地址'"></nav-back>
+		<nav-back :title="type === 'wallet' ? $t('wallet.myWallet') : $t('wallet.addressTitle')"></nav-back>
 
 		<view v-if="!userInfo.walletAddress" class="empty-container">
 			<view class="illustration-box">
 				<image class="empty-img" src="/static/img/img_noadress@2x.webp" mode="aspectFit"></image>
-				<view class="empty-text">
-					目前还没有添加钱包地址，
-					<br />
-					现在就去添加它
-				</view>
+				<view class="empty-text">{{ $t('wallet.noAddressDesc') }}</view>
 			</view>
 
 			<view class="bottom-action">
-				<view class="btn-add" @click="addAddress">添加钱包地址</view>
+				<view class="btn-add" @click="addAddress">{{ $t('wallet.noAddressTitle') }}</view>
 			</view>
 		</view>
 
 		<view v-else class="wallet-container">
 			<view class="balance-section" v-if="type === 'wallet'">
-				<view class="label">钱包余额</view>
+				<view class="label">{{ $t('wallet.balance') }}</view>
 				<view class="amount-row">
 					<text class="symbol">$</text>
 					<text class="number">{{ balance }}</text>
@@ -29,7 +25,7 @@
 
 			<view class="address-card" :class="type === 'address' ? 'address-card-gray' : ''">
 				<view class="address-margin">
-					<view class="card-header">绑定钱包地址</view>
+					<view class="card-header">{{ $t('wallet.bindAddressTitle') }}</view>
 
 					<view class="chain-type">
 						<image class="icon-loc" src="/static/img/icon_addresss@2x.webp" mode="aspectFit"></image>
@@ -45,11 +41,11 @@
 		</view>
 
 		<!-- 钱包地址编辑弹窗 -->
-		<confirm-popup :visible="showAddressPopup" title="添加钱包地址" @cancel="showAddressPopup = false" @ok="saveAddress">
+		<confirm-popup :visible="showAddressPopup" :title="$t('wallet.noAddressTitle')" @cancel="showAddressPopup = false" @ok="saveAddress">
 			<view class="wallet-inputs">
-				<view class="wallet-tip">确认你的钱包地址是BSC公链地址，并添加正确，否则你将无法接收代币。</view>
-				<input class="wallet-input" type="text" placeholder="填写地址备注" v-model="tempAddressData.walletAddressRemark" />
-				<textarea class="wallet-input wallet-textarea" placeholder="填写正确的BSC公链地址"
+				<view class="wallet-tip">{{ $t('wallet.bscTip') }}</view>
+				<input class="wallet-input" type="text" :placeholder="$t('wallet.placeholderRemark')" v-model="tempAddressData.walletAddressRemark" />
+				<textarea class="wallet-input wallet-textarea" :placeholder="$t('wallet.placeholderAddress')"
 					v-model="tempAddressData.walletAddress" />
 			</view>
 		</confirm-popup>
@@ -118,7 +114,7 @@ export default {
 			this.showAddressPopup = false;
 
 			uni.showToast({
-				title: '保存成功',
+				title: this.$t('wallet.saveSuccess'),
 				icon: 'success'
 			});
 		}

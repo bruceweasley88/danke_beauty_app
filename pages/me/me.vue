@@ -6,20 +6,20 @@
 				</image>
 			</view>
 			<view class="user-info">
-				<text class="user-name">{{ userInfo.nickName || '未设置昵称' }}</text>
+				<text class="user-name">{{ userInfo.nickName || $t('me.noNickname') }}</text>
 				<view class="social-link">
 					<text v-if="firstSocial">{{ firstSocial }}</text>
-					<text v-else>添加您的社交账号</text>
+					<text v-else>{{ $t('me.addSocialAccount') }}</text>
 					<view class="mini-arrow"></view>
 				</view>
 			</view>
 		</view>
 
 		<view style="margin-bottom: 30rpx;">
-			<points :point="userInfo.hst || 0" @detail="toPointsDetail"></points>
+			<points :point="userInfo.hst || 0" @detail="toPointsDetail" :key="Date.now()"></points>
 			<view class="wallet-main">
 				<view class="my-wallet" @click="toWallet('wallet')">
-					<view class="title">我的钱包</view>
+					<view class="title">{{ $t('me.myWallet') }}</view>
 					<view class="value">
 						<text class="unit">$</text>
 						<text class="number">{{ balance }}</text>
@@ -28,49 +28,50 @@
 					<view class="icon wallet"></view>
 				</view>
 				<view class="wallet-address" @click="toWallet('address')">
-					<view class="title">钱包地址</view>
-					<view class="bindding">{{ userInfo.walletAddress ? '已绑定 >' : '去绑定 >' }}</view>
+					<view class="title">{{ $t('me.walletAddress') }}</view>
+					<view class="bindding">{{ userInfo.walletAddress ? $t('me.bound') + ' >' : $t('me.toBind') + ' >' }}</view>
 					<view class="icon address"></view>
 				</view>
 			</view>
 		</view>
 
 		<view class="settings-section">
-			<view class="section-title">设置</view>
+			<view class="section-title">{{ $t('me.settings') }}</view>
 
 			<view class="list-card">
 				<view class="list-item" hover-class="item-hover" @click="toPersonal">
 					<view class="item-icon-placeholder" style="background-image: url('/static/me_img/icon_profile.png');"></view>
-					<text class="item-label">个人资料</text>
+					<text class="item-label">{{ $t('me.personalProfile') }}</text>
 					<view class="arrow-placeholder"></view>
 				</view>
 				<view class="list-item" hover-class="item-hover" @click="toDevices">
 					<view class="item-icon-placeholder" style="background-image: url('/static/me_img/icon_device.png');"></view>
-					<text class="item-label">我的设备</text>
+					<text class="item-label">{{ $t('me.myDevices') }}</text>
 					<view class="arrow-placeholder"></view>
 				</view>
 				<view class="list-item" hover-class="item-hover" @tap="toUserManual">
 					<view class="item-icon-placeholder" style="background-image: url('/static/me_img/icon_explanation.png');">
 					</view>
-					<text class="item-label">使用说明</text>
+					<text class="item-label">{{ $t('me.userManual') }}</text>
 					<view class="arrow-placeholder"></view>
 				</view>
 				<view class="list-item" hover-class="item-hover" @click="toLanguage">
 					<view class="item-icon-placeholder" style="background-image: url('/static/me_img/icon_language.png');"></view>
-					<text class="item-label">语言选择</text>
+					<text class="item-label">{{ $t('me.languageSelection') }}</text>
 					<view class="arrow-placeholder"></view>
 				</view>
 				<view class="list-item" hover-class="item-hover" @click="toAbout">
 					<view class="item-icon-placeholder" style="background-image: url('/static/me_img/icon_about.png');"></view>
-					<text class="item-label">关于我们</text>
+					<text class="item-label">{{ $t('me.aboutUs') }}</text>
 					<view class="arrow-placeholder"></view>
 				</view>
 			</view>
 		</view>
 
 		<view class="logout-wrapper">
-			<button class="logout-btn" border="false" @tap="handleLogout">退出登录</button>
+			<button class="logout-btn" border="false" @tap="handleLogout">{{ $t('me.logout') }}</button>
 		</view>
+		<custom-tab-bar active="me" :key="Date.now()" />
 	</view>
 </template>
 
@@ -80,10 +81,12 @@ import {
 } from '@/apis/userApi.js'
 import points from '../../components/points.vue';
 import { getTokenBalance } from '../../utils/hst';
+import CustomTabBar from '@/components/custom-tab-bar.vue';
 
 export default {
 	components: {
-		points
+		points,
+		CustomTabBar
 	},
 	data() {
 		return {
@@ -93,6 +96,7 @@ export default {
 		};
 	},
 	onShow() {
+		uni.hideTabBar()
 		this.getUserInfo();
 	},
 	computed: {
@@ -142,8 +146,6 @@ export default {
 			})
 		},
 		toLanguage() {
-			this.$noSupport();
-			return;
 			uni.navigateTo({
 				url: '/pages/language/language'
 			})
@@ -165,8 +167,8 @@ export default {
 		},
 		handleLogout() {
 			uni.showModal({
-				title: '提示',
-				content: '确定要退出登录吗？',
+				title: this.$t('me.tip'),
+				content: this.$t('me.logoutConfirm'),
 				success: (res) => {
 					if (res.confirm) {
 						// 用户点击确定
@@ -193,7 +195,7 @@ $card-bg: #FFFFFF;
 $placeholder-color: #888;
 
 .profile-container {
-	padding: 0 30rpx;
+	padding: 0 30rpx 100rpx;
 	/* 背景渐变已由全局处理，此处保持透明 */
 }
 
@@ -382,7 +384,7 @@ $placeholder-color: #888;
 .logout-wrapper {
 	margin-top: 60rpx;
 	padding: 0 10rpx;
-	margin-bottom: 60rpx;
+	margin-bottom: 100rpx;
 
 	.logout-btn {
 		width: 100%;

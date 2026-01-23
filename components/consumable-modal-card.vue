@@ -5,16 +5,16 @@
     </view>
 
     <view class="content-box">
-      <view class="main-title">请扫码添加{{ typeName }}SN码</view>
+      <view class="main-title">{{ $t('consumable.scanTip').replace('{deviceType}', typeName) }}</view>
       <view class="sub-description">
-        <view>添加{{ typeName }}SN码后，可获得对应的积分</view>
-        <view>获取到的积分信息可以在我的积分中查看</view>
+        <view>{{ $t('consumable.scanTip2').replace('{deviceType}', typeName) }}</view>
+        <view>{{ $t('consumable.pointsTip') }}</view>
       </view>
     </view>
 
     <view class="action-group">
-      <button v-if="showCancel" class="btn btn-secondary" @tap="onCancel">暂不添加</button>
-      <button class="btn btn-primary" @tap="onAdd">扫描添加</button>
+      <button v-if="showCancel" class="btn btn-secondary" @tap="onCancel">{{ $t('consumable.notAddNow') }}</button>
+      <button class="btn btn-primary" @tap="onAdd">{{ $t('consumable.scanAdd') }}</button>
     </view>
   </view>
 </template>
@@ -34,13 +34,7 @@ export default {
   },
   computed: {
     typeName() {
-      const typeMap = {
-        mask: '面膜',
-        spray: '喷雾器',
-        bra: '文胸',
-        importer: '美容导入仪'
-      };
-      return typeMap[this.type] || '面膜';
+      return this.$t(`consumableType.${this.type}`)
     }
   },
   methods: {

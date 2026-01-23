@@ -1,22 +1,22 @@
 <template>
 	<view class="about-page">
-		<nav-back title="关于我们"></nav-back>
+		<nav-back :title="$t('about.title')"></nav-back>
 		<view class="logo-section">
 			<view class="app-logo"></view>
-			<view class="app-name">淡壳美妆</view>
-			<view class="app-slogan">悦享科技，愈见年轻，开启肌肤高光时刻</view>
+			<view class="app-name">{{ $t('about.appName') }}</view>
+			<view class="app-slogan">{{ $t('about.slogan') }}</view>
 		</view>
 
 		<view class="content-card">
 			<view class="list-item" @tap="checkUpdate">
-				<text class="title">检查更新</text>
+				<text class="title">{{ $t('about.checkUpdate') }}</text>
 				<view class="right-box">
 					<text class="version-text">{{ displayVersion }}</text>
 					<text class="arrow-icon"></text>
 				</view>
 			</view>
 			<view class="list-item" @tap="toSerivce">
-				<text class="title">服务协议</text>
+				<text class="title">{{ $t('about.serviceAgreement') }}</text>
 				<view class="right-box">
 					<text class="arrow-icon"></text>
 				</view>
@@ -26,15 +26,15 @@
 		<view class="modal-mask" v-if="showModal" @touchmove.stop.prevent>
 			<view class="modal-body">
 				<view class="modal-header">
-					<view class="m-title">检测更新</view>
-					<view class="m-tips">发现新版本，请手动安装最新版本</view>
+					<view class="m-title">{{ $t('about.updateDetected') }}</view>
+					<view class="m-tips">{{ $t('about.newVersionTip') }}</view>
 				</view>
 
 				<view class="modal-illustration"></view>
 
 				<view class="modal-footer">
-					<view class="btn btn-cancel" @tap="showModal = false">取消</view>
-					<view class="btn btn-update" @tap="confirmUpdate">更新</view>
+					<view class="btn btn-cancel" @tap="showModal = false">{{ $t('common.cancel') }}</view>
+					<view class="btn btn-update" @tap="confirmUpdate">{{ $t('about.update') }}</view>
 				</view>
 			</view>
 		</view>
@@ -62,7 +62,7 @@ export default {
 	},
 	methods: {
 		checkUpdate() {
-			uni.showLoading({ title: '检查更新中...' });
+			uni.showLoading({ title: this.$t('about.checkingUpdate') });
 
 			const systemInfo = uni.getSystemInfoSync();
 			const platformType = systemInfo.platform === 'ios' ? 1 : 2;
@@ -78,16 +78,16 @@ export default {
 				if (res.data.state === '1') {
 					this.showModal = true;
 				} else {
-					uni.showToast({ title: '已经是最新版本', icon: 'success' });
+					uni.showToast({ title: this.$t('about.isLatest'), icon: 'success' });
 				}
 			});
 		},
 		confirmUpdate() {
 			uni.showModal({
-				title: '更新提示',
-				content: '请手动打开应用商店更新应用',
+				title: this.$t('about.updateTip'),
+				content: this.$t('about.manualUpdateTip'),
 				showCancel: false,
-				confirmText: '知道了',
+				confirmText: this.$t('about.gotIt'),
 				confirmColor: '#09AB4D'
 			});
 			this.showModal = false;
@@ -145,6 +145,8 @@ $border-color: #EEEEEE;
 			font-size: 26rpx;
 			color: $black-3;
 			letter-spacing: 2rpx;
+			padding: 0 40rpx;
+			text-align: center;
 		}
 	}
 

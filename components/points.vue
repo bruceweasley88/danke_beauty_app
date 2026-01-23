@@ -3,11 +3,11 @@
 		<view class="points-card-main">
 
 			<view class="detail-entry" v-if="showDetail" @tap="onDetailClick">
-				积分详情 <text class="arrow">></text>
+				{{ $t('myPoints.detailTitle') }} <text class="arrow">></text>
 			</view>
 
 			<view class="card-content">
-				<view class="title">我的积分</view>
+				<view class="title">{{ $t('myPoints.title') }}</view>
 
 				<view class="score-section">
 					<image class="coin-icon" mode="aspectFit"></image>
@@ -15,9 +15,9 @@
 				</view>
 
 				<view class="bottom-bar">
-					<view class="tips">绑定钱包地址后，获取的积分可提现到钱包</view>
+					<view class="tips">{{ $t('points.withdrawTip') }}</view>
 					<view class="withdraw-btn" @tap="onWithdrawClick">
-						立即提取 <text class="arrow-bold">></text>
+						{{ $t('myPoints.withdrawToWallet') }} <text class="arrow-bold">></text>
 					</view>
 				</view>
 			</view>
@@ -136,19 +136,20 @@ export default {
 	.tips {
 		font-size: 22rpx;
 		color: #9CA29D;
-		width: 428rpx;
+		width: 480rpx;
 		font-weight: 400;
 		line-height: 1.2;
+		white-space: nowrap;
 	}
 
 	.withdraw-btn {
 		color: #000000;
-		font-size: 26rpx;
+		font-size: 24rpx;
 		font-weight: 500;
 		display: flex;
 
 		.arrow-bold {
-			margin-left: 8rpx;
+			margin-left: 6rpx;
 			font-size: 24rpx;
 		}
 	}

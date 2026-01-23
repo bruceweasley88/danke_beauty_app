@@ -25,13 +25,7 @@ export default {
   },
   computed: {
     title() {
-      const titleMap = {
-        mask: 'AI面膜',
-        spray: '补水喷雾器',
-        importer: '美容导入仪',
-        bra: 'AI文胸'
-      };
-      return titleMap[this.type] || 'AI面膜';
+      return this.$t(`deviceType.${this.type}`)
     }
   },
   onLoad(options) {

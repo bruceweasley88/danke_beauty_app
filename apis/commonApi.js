@@ -1,4 +1,5 @@
 import { get, post, baseUrl } from './requset.js'
+import { t } from '../locale/index.js'
 
 /**
  * @description 获取国家列表
@@ -69,12 +70,12 @@ export const commonUploadImage = (filePath) => {
         if (data.code === 200) {
           resolve(data)
         } else {
-          uni.showToast({ title: data.msg || '上传失败', icon: 'none' })
+          uni.showToast({ title: data.msg || t('common.uploadFailed'), icon: 'none' })
           reject(data)
         }
       },
       fail: (err) => {
-        uni.showToast({ title: '上传失败', icon: 'none' })
+        uni.showToast({ title: t('common.uploadFailed'), icon: 'none' })
         reject(err)
       }
     })

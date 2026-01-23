@@ -140,13 +140,13 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页",
+				"text": "Home",
 				"iconPath": "static/nav_img/icon_homenc.png",
 				"selectedIconPath": "static/nav_img/icon_homec.png"
 			},
 			{
 				"pagePath": "pages/me/me",
-				"text": "我的",
+				"text": "Me",
 				"iconPath": "static/nav_img/icon_mync.png",
 				"selectedIconPath": "static/nav_img/icon_myc.png"
 			}

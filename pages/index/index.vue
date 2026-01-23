@@ -3,7 +3,7 @@
 		<view class="status-bar"></view>
 		<view class="header-section">
 			<view class="mining-box">
-				<text class="label">挖矿进度</text>
+				<text class="label">{{ $t('index.miningProgress') }}</text>
 				<view class="value-row">
 					<text class="main-digit">{{ userInfo?.hst || '0.000000' }}</text>
 					<text class="unit">HST</text>
@@ -27,42 +27,43 @@
 		<view class="grid-layout">
 			<view class="device-card bg-mask">
 				<view class="card-content" @click="toDevice('mask')">
-					<text class="device-name">AI面膜</text>
-					<text class="device-intro">臻享胶原水光细胞</text>
-					<view class="action-btn" style="background-color: #344D6C;">{{ maskDevice ? '去使用' : '绑定设备'}}</view>
-					<text class="status-indicator" v-if="maskDevice">{{ maskDevice.connected ? '已连接' : '离线' }} | {{ maskDevice.time }}</text>
+					<text class="device-name">{{ getDeviceName('mask') }}</text>
+					<text class="device-intro">{{ $t('deviceDesc.mask') }}</text>
+					<view class="action-btn" style="background-color: #344D6C;">{{ maskDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="maskDevice">{{ maskDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ maskDevice.time }}</text>
 				</view>
 			</view>
 
 			<view class="device-card bg-spray">
 				<view class="card-content" @click="toDevice('spray')">
-					<text class="device-name">补水喷雾器</text>
-					<text class="device-intro">纳米喷雾保湿美容</text>
-					<view class="action-btn" style="background-color: #306738;">{{ sprayDevice ? '去使用' : '绑定设备'}}</view>
-					<text class="status-indicator" v-if="sprayDevice">{{ sprayDevice.connected ? '已连接' : '离线' }} | {{ sprayDevice.time }}</text>
+					<text class="device-name">{{ getDeviceName('spray') }}</text>
+					<text class="device-intro">{{ $t('deviceDesc.spray') }}</text>
+					<view class="action-btn" style="background-color: #306738;">{{ sprayDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="sprayDevice">{{ sprayDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ sprayDevice.time }}</text>
 				</view>
 			</view>
 
 			<view class="device-card bg-bra">
 				<view class="card-content" @click="toDevice('bra')">
-					<text class="device-name">AI文胸</text>
-					<text class="device-intro">EMS脉冲技术养护</text>
-					<view class="action-btn" style="background-color: #4E346C;">{{ braDevice ? '去使用' : '绑定设备'}}</view>
-					<text class="status-indicator muted" v-if="braDevice">{{ braDevice.connected ? '已连接' : '离线' }} | {{ braDevice.time }}</text>
+					<text class="device-name">{{ getDeviceName('bra') }}</text>
+					<text class="device-intro">{{ $t('deviceDesc.bra') }}</text>
+					<view class="action-btn" style="background-color: #4E346C;">{{ braDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
+					<text class="status-indicator muted" v-if="braDevice">{{ braDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ braDevice.time }}</text>
 				</view>
 			</view>
 
 			<view class="device-card bg-beauty">
 				<view class="card-content" @click="toDevice('importer')">
-					<text class="device-name">美容导入仪</text>
-					<text class="device-intro">微晶提拉水光肌</text>
-					<view class="action-btn" style="background-color: #673030;">{{ importerDevice ? '去使用' : '绑定设备'}}</view>
-					<text class="status-indicator" v-if="importerDevice">{{ importerDevice.connected ? '已连接' : '离线' }} | {{ importerDevice.time }}</text>
+					<text class="device-name">{{ getDeviceName('importer') }}</text>
+					<text class="device-intro">{{ $t('deviceDesc.importer') }}</text>
+					<view class="action-btn" style="background-color: #673030;">{{ importerDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="importerDevice">{{ importerDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ importerDevice.time }}</text>
 				</view>
 			</view>
 		</view>
 		<web-view v-if="token" v-show="false" :update-title="false" :fullscreen="false" src="/hybrid/html/index.html"
 			@message="handleWebViewMessage" />
+		<custom-tab-bar active="index" :key="Date.now()" />
 	</view>
 </template>
 
@@ -71,10 +72,12 @@ import { commonGetIndexBanner } from '@/apis/commonApi.js'
 import { userGetInfo } from '@/apis/userApi.js'
 import { toDevice } from '../../utils/toDevice';
 import { getDevice } from '../../utils/deivceManage';
+import { getDeviceName } from '../../utils/getDeviceName';
+import CustomTabBar from '@/components/custom-tab-bar.vue';
 
 export default {
 	components: {
-
+		CustomTabBar
 	},
 	data() {
 		return {
@@ -95,6 +98,7 @@ export default {
 		}
 	},
 	onShow() {
+		uni.hideTabBar()
 		const token = uni.getStorageSync('token')
 		this.token = token;
 		console.log('token', token)
@@ -116,6 +120,7 @@ export default {
 		console.log(this.maskDevice)
 	},
 	methods: {
+		getDeviceName: getDeviceName,
 		async getIndexBanner() {
 			if (!this.bannerList.length) {
 				const res = await commonGetIndexBanner();
@@ -200,6 +205,7 @@ page {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	padding-bottom: 100rpx;
 
 	.status-bar {
 		margin-top: 20rpx;
@@ -367,14 +373,16 @@ page {
 	}
 
 	.action-btn {
-		width: 111rpx;
+		padding: 0 20rpx;
 		height: 44rpx;
 		border-radius: 22rpx;
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		font-size: 20rpx;
 		color: #FFFFFF;
+		white-space: nowrap;
+		align-self: flex-start;
 
 		&.btn-blue-grey {
 			background-color: #344D6C;

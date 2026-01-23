@@ -1,19 +1,19 @@
 <template>
 	<view class="page-container">
-		<nav-back title="添加SN码"></nav-back>
+		<nav-back :title="$t('snInput.title')"></nav-back>
 
 		<view class="mask-container">
-			<view class="title">请输入SN码</view>
+			<view class="title">{{ $t('snInput.enterSN') }}</view>
 
 			<view class="input-box">
-				<input class="sn-input" type="text" placeholder="请输入设备上的SN码" placeholder-style="color: #C2C9C3" v-model="sn" />
+				<input class="sn-input" type="text" :placeholder="$t('snInput.placeholder')" placeholder-style="color: #C2C9C3" v-model="sn" />
 			</view>
 
 			<view class="description">
-				说明：添加耗材后，可获得对应的积分，获取到的积分可在耗材记录中查看。获得的积分可提取到您的钱包。
+				{{ $t('snInput.description') }}
 			</view>
 
-			<button class="add-btn" @tap="handleAdd">添加耗材</button>
+			<button class="add-btn" @tap="handleAdd">{{ $t('snInput.addConsumable') }}</button>
 		</view>
 
 		<!-- 拟态弹窗 -->
@@ -91,28 +91,28 @@ export default {
 
 		async handleAdd() {
 			if (!this.sn) {
-				this.showPopup('fail', '请输入SN码')
+				this.showPopup('fail', this.$t('snInput.enterSNFirst'))
 				return
 			}
 
 			const infoRes = await getMaterialConsumables({ code: this.sn })
 
 			if (!infoRes.data || infoRes.data.length === 0) {
-				this.showPopup('fail', 'SN码不存在')
+				this.showPopup('fail', this.$t('snInput.snNotExist'))
 				return
 			}
 
 			const consumable = infoRes.data[0]
 			if (consumable.isUsed === 1) {
-				this.showPopup('fail', '积分已输入，请勿重复扫描')
+				this.showPopup('fail', this.$t('snInput.alreadyUsed'))
 				return
 			}
 
 			await useMaterialConsumable({ consumableCode: this.sn })
 
 			this.showPopup([
-				{ icon: 'success', text: '积分已输入成功' },
-				{ icon: 'coins', text: `恭喜你获得${consumable.points}积分` }
+				{ icon: 'success', text: this.$t('snInput.success') },
+				{ icon: 'coins', text: this.$t('snInput.congratulations').replace('{points}', consumable.points) }
 			]);
 
 			setTimeout(() => {

@@ -1,6 +1,6 @@
 <template>
 	<view class="profile-page">
-		<nav-back title="个人资料"></nav-back>
+		<nav-back :title="$t('personal.title')"></nav-back>
 		<view class="avatar-section">
 			<view class="avatar-wrapper" @tap="onChangeAvatar">
 				<image class="avatar-placeholder" :src="userInfo.headImg || '/static/img/icon_photo.webp'" mode="aspectFill"></image>
@@ -10,7 +10,7 @@
 		<view class="info-list">
 			<!-- 昵称 -->
 			<view class="info-item" @tap="openNicknamePopup">
-				<view class="label">昵称</view>
+				<view class="label">{{ $t('personal.nickname') }}</view>
 				<view class="content">
 					<text :class="['value', userInfo.nickName ? '' : 'placeholder']">
 						{{ userInfo.nickName || 'Fill in' }}
@@ -21,10 +21,10 @@
 
 			<!-- 性别 -->
 			<view class="info-item" @tap="openGenderPopup">
-				<view class="label">性别</view>
+				<view class="label">{{ $t('personal.gender') }}</view>
 				<view class="content">
 					<text :class="['value', userInfo.sex ? '' : 'placeholder']">
-						{{ userInfo.sex == 1 ? '男' : userInfo.sex == 2 ? '女' : 'Fill in' }}
+						{{ userInfo.sex == 1 ? $t('personal.male') : userInfo.sex == 2 ? $t('personal.female') : 'Fill in' }}
 					</text>
 					<image class="icon-arrow" src="/static/img/icon_down.png" mode="aspectFit"></image>
 				</view>
@@ -32,7 +32,7 @@
 
 			<!-- 年龄 -->
 			<view class="info-item" @tap="openAgePopup">
-				<view class="label">年龄</view>
+				<view class="label">{{ $t('personal.age') }}</view>
 				<view class="content">
 					<text :class="['value', userInfo.age ? '' : 'placeholder']">
 						{{ userInfo.age || 'Fill in' }}
@@ -43,10 +43,10 @@
 
 			<!-- 身高 -->
 			<view class="info-item" @tap="openHeightPopup">
-				<view class="label">身高</view>
+				<view class="label">{{ $t('personal.height') }}</view>
 				<view class="content">
 					<text :class="['value', userInfo.height ? '' : 'placeholder']">
-						{{ userInfo.height ? userInfo.height + 'cm' : 'Fill in' }}
+						{{ userInfo.height ? userInfo.height + $t('personal.unitCm') : 'Fill in' }}
 					</text>
 					<image class="icon-arrow" src="/static/img/icon_down.png" mode="aspectFit"></image>
 				</view>
@@ -54,10 +54,10 @@
 
 			<!-- 体重 -->
 			<view class="info-item" @tap="openWeightPopup">
-				<view class="label">体重</view>
+				<view class="label">{{ $t('personal.weight') }}</view>
 				<view class="content">
 					<text :class="['value', userInfo.weight ? '' : 'placeholder']">
-						{{ userInfo.weight ? userInfo.weight + 'kg' : 'Fill in' }}
+						{{ userInfo.weight ? userInfo.weight + $t('personal.unitKg') : 'Fill in' }}
 					</text>
 					<image class="icon-arrow" src="/static/img/icon_down.png" mode="aspectFit"></image>
 				</view>
@@ -65,10 +65,10 @@
 
 			<!-- 社交媒体 -->
 			<view class="info-item" @tap="openSocialPopup">
-				<view class="label">社交媒体</view>
+				<view class="label">{{ $t('personal.socialMedia') }}</view>
 				<view class="content">
 					<text :class="['value', hasSocialInfo() ? '' : 'placeholder']">
-						{{ hasSocialInfo() ? '已填写' : 'Fill in' }}
+						{{ hasSocialInfo() ? $t('personal.filled') : 'Fill in' }}
 					</text>
 					<image class="icon-arrow" src="/static/img/icon_down.png" mode="aspectFit"></image>
 				</view>
@@ -76,20 +76,20 @@
 		</view>
 
 		<view class="footer-action">
-			<button class="btn-save" @tap="submitSave">保存</button>
+			<button class="btn-save" @tap="submitSave">{{ $t('personal.save') }}</button>
 		</view>
 
 		<!-- 昵称编辑弹窗 -->
-		<confirm-popup :visible="showNicknamePopup" title="请输入昵称" content="数据将同步到您的个人资料" @cancel="showNicknamePopup = false"
+		<confirm-popup :visible="showNicknamePopup" :title="$t('personal.enterNickname')" :content="$t('personal.dataSyncTip')" @cancel="showNicknamePopup = false"
 			@ok="saveNickname">
-			<input class="popup-input" type="text" placeholder="请输入昵称" v-model="tempNickname" />
+			<input class="popup-input" type="text" :placeholder="$t('personal.enterNickname')" v-model="tempNickname" />
 		</confirm-popup>
 
 		<!-- 性别选择弹窗 -->
-		<confirm-popup :visible="showGenderPopup" title="请选择性别" content="数据将同步到您的个人资料" @cancel="showGenderPopup = false"
+		<confirm-popup :visible="showGenderPopup" :title="$t('personal.selectGender')" :content="$t('personal.dataSyncTip')" @cancel="showGenderPopup = false"
 			@ok="saveGender">
 			<view class="gender-list">
-				<view v-for="(item, index) in genderOptions" :key="index" class="gender-item" @tap="tempGenderIndex = index">
+				<view v-for="(item, index) in localizedGenderOptions" :key="index" class="gender-item" @tap="tempGenderIndex = index">
 					<view class="gender-left">
 						<image :src="item.icon" class="gender-icon"></image>
 						<text :class="['gender-label', tempGenderIndex === index ? 'selected' : '']">
@@ -105,19 +105,19 @@
 		</confirm-popup>
 
 		<!-- 年龄选择弹窗 -->
-		<confirm-popup :visible="showAgePopup" title="请选择年龄" content="数据将同步到您的个人资料" @cancel="showAgePopup = false"
+		<confirm-popup :visible="showAgePopup" :title="$t('personal.selectAge')" :content="$t('personal.dataSyncTip')" @cancel="showAgePopup = false"
 			@ok="saveAge">
 			<picker-view class="picker-view" :value="[tempAgeIndex]" @change="onAgeChange">
 				<picker-view-column>
 					<view v-for="(item, index) in ageRange" :key="index" class="picker-item">
-						{{ item }}岁
+						{{ item }}{{ $t('personal.unitAge') }}
 					</view>
 				</picker-view-column>
 			</picker-view>
 		</confirm-popup>
 
 		<!-- 身高选择弹窗 -->
-		<confirm-popup :visible="showHeightPopup" title="请选择身高" content="数据将同步到您的个人资料" @cancel="showHeightPopup = false"
+		<confirm-popup :visible="showHeightPopup" :title="$t('personal.selectHeight')" :content="$t('personal.dataSyncTip')" @cancel="showHeightPopup = false"
 			@ok="saveHeight">
 			<picker-view class="picker-view" :value="tempHeightIndex" @change="onHeightChange">
 				<picker-view-column>
@@ -134,7 +134,7 @@
 		</confirm-popup>
 
 		<!-- 体重选择弹窗 -->
-		<confirm-popup :visible="showWeightPopup" title="请选择体重" content="数据将同步到您的个人资料" @cancel="showWeightPopup = false"
+		<confirm-popup :visible="showWeightPopup" :title="$t('personal.selectWeight')" :content="$t('personal.dataSyncTip')" @cancel="showWeightPopup = false"
 			@ok="saveWeight">
 			<picker-view class="picker-view" :value="tempWeightIndex" @change="onWeightChange">
 				<picker-view-column>
@@ -151,20 +151,20 @@
 		</confirm-popup>
 
 		<!-- 社交媒体编辑弹窗 -->
-		<confirm-popup :visible="showSocialPopup" title="社交媒体" content="数据将同步到您的个人资料" @cancel="showSocialPopup = false"
+		<confirm-popup :visible="showSocialPopup" :title="$t('personal.socialMediaTip')" :content="$t('personal.dataSyncTip')" @cancel="showSocialPopup = false"
 			@ok="saveSocial">
 			<view class="social-inputs">
 				<view class="input-group">
 					<view class="input-label">WhatsApp</view>
-					<input class="social-input" type="text" placeholder="请输入WhatsApp账号" v-model="tempSocialData.whatsapp" />
+					<input class="social-input" type="text" :placeholder="$t('personal.enterWhatsapp')" v-model="tempSocialData.whatsapp" />
 				</view>
 				<view class="input-group">
 					<view class="input-label">X (Twitter)</view>
-					<input class="social-input" type="text" placeholder="请输入X账号" v-model="tempSocialData.x" />
+					<input class="social-input" type="text" :placeholder="$t('personal.enterX')" v-model="tempSocialData.x" />
 				</view>
 				<view class="input-group">
 					<view class="input-label">Telegram</view>
-					<input class="social-input" type="text" placeholder="请输入Telegram账号" v-model="tempSocialData.tg" />
+					<input class="social-input" type="text" :placeholder="$t('personal.enterTelegram')" v-model="tempSocialData.tg" />
 				</view>
 			</view>
 		</confirm-popup>
@@ -229,6 +229,17 @@ export default {
 			weightDecimal: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // 小数部分
 		};
 	},
+	computed: {
+		// 国际化的性别选项
+		localizedGenderOptions() {
+			return this.genderOptions.map(option => ({
+				...option,
+				label: option.value === 2
+					? this.$t('personal.female')
+					: this.$t('personal.male')
+			}));
+		}
+	},
 	onLoad() {
 		this.getUserInfo();
 	},
@@ -238,7 +249,7 @@ export default {
 			const token = uni.getStorageSync('token');
 			if (!token) {
 				uni.showToast({
-					title: '请先登录',
+					title: this.$t('personal.pleaseLogin'),
 					icon: 'none'
 				});
 				return;
@@ -259,13 +270,13 @@ export default {
 			})
 
 			const filePath = res.tempFilePaths[0]
-			uni.showLoading({ title: '上传中...' })
+			uni.showLoading({ title: this.$t('personal.uploading') })
 
 			const data = await commonUploadImage(filePath)
 			this.userInfo.headImg = data.data.url
 
 			uni.hideLoading()
-			uni.showToast({ title: '上传成功', icon: 'success' })
+			uni.showToast({ title: this.$t('personal.uploadSuccess'), icon: 'success' })
 		},
 
 		// 打开昵称弹窗
@@ -400,7 +411,7 @@ export default {
 		// 保存所有数据
 		async submitSave() {
 			uni.showLoading({
-				title: '保存中...'
+				title: this.$t('personal.saving')
 			});
 
 			console.log("保存数据", this.userInfo)
@@ -410,12 +421,12 @@ export default {
 
 			if (res.code === 200 || res.success) {
 				uni.showToast({
-					title: '保存成功',
+					title: this.$t('personal.saveSuccess'),
 					icon: 'success'
 				});
 			} else {
 				uni.showToast({
-					title: res.message || '保存失败',
+					title: res.message || this.$t('personal.saveFailed'),
 					icon: 'none'
 				});
 			}

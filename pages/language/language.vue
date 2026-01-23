@@ -66,11 +66,8 @@ export default {
 	},
 	methods: {
 		onOk() {
-			setLanguage(this.current)
+			uni.setStorageSync('language', this.current)
 			this.toBack()
-			// uni.reLaunch({
-			// 	url: '/pages/home/index'
-			// })
 		},
 		toBack() {
 			uni.navigateBack();

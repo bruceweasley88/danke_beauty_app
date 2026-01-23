@@ -1,6 +1,6 @@
 <template>
 	<view class="consumable-page">
-		<nav-back title="全部耗材"></nav-back>
+		<nav-back :title="$t('consumable.allConsumables')"></nav-back>
 
 		<view class="section-group">
 
@@ -8,7 +8,7 @@
 				<text class="title"></text>
 
 				<view class="more-btn" style="margin-top: -88rpx;" @click="toAddConsumable">
-					<text>添加更多耗材</text>
+					<text>{{ $t('consumable.addMore') }}</text>
 					<text class="arrow"></text>
 				</view>
 			</view>
@@ -16,34 +16,34 @@
 			<view class="summary-card">
 				<view class="summary-item">
 					<view class="value">{{ summary.type1 }}</view>
-					<view class="label">AI面膜</view>
+					<view class="label">{{ $t('deviceType.mask') }}</view>
 				</view>
 				<view class="vertical-line"></view>
 				<view class="summary-item">
 					<view class="value">{{ summary.type2 }}</view>
-					<view class="label">补水喷雾</view>
+					<view class="label">{{ $t('deviceType.spray') }}</view>
 				</view>
 				<view class="vertical-line"></view>
 				<view class="summary-item">
 					<view class="value">{{ summary.type3 }}</view>
-					<view class="label">AI文胸</view>
+					<view class="label">{{ $t('deviceType.bra') }}</view>
 				</view>
 				<view class="vertical-line"></view>
 				<view class="summary-item">
 					<view class="value">{{ summary.type4 }}</view>
-					<view class="label">美容导入仪</view>
+					<view class="label">{{ $t('deviceType.importer') }}</view>
 				</view>
 			</view>
 		</view>
 
 		<view class="section-group list-margin">
 			<view class="section-header">
-				<text class="title">使用记录</text>
+				<text class="title">{{ $t('consumable.usageRecord') }}</text>
 			</view>
 
 			<view class="record-list">
 				<view v-if="recordList.length === 0" class="empty-tip">
-					<text class="empty-text">- 暂无记录 -</text>
+					<text class="empty-text">{{ $t('consumable.noRecord') }}</text>
 				</view>
 				<view class="record-card" v-for="(item, index) in recordList" :key="index">
 					<view class="icon-box" :class="`icon-${consumableTypeToType(item.consumableType)}`"></view>

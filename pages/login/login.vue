@@ -1,14 +1,14 @@
 <template>
 	<view class="login-container">
 		<view class="header-section">
-			<view class="title">欢迎登录</view>
-			<view class="subtitle">淡壳美妆 关注您的皮肤状态</view>
+			<view class="title">{{ $t('login.title') }}</view>
+			<view class="subtitle">{{ $t('auth.appName') }} {{ $t('auth.appSlogan') }}</view>
 		</view>
 
 		<view class="login-card">
 			<view class="tabs-box">
-				<view class="tab-item" :class="{ active: currentTab === 0 }" @click="currentTab = 0">手机号登录</view>
-				<view class="tab-item" :class="{ active: currentTab === 1 }" @click="currentTab = 1">邮箱登录</view>
+				<view class="tab-item" :class="{ active: currentTab === 0 }" @click="currentTab = 0">{{ $t('auth.phoneLogin') }}</view>
+				<view class="tab-item" :class="{ active: currentTab === 1 }" @click="currentTab = 1">{{ $t('auth.emailLogin') }}</view>
 			</view>
 
 			<view class="form-content">
@@ -17,33 +17,34 @@
 						<text>+{{ areaCode }}</text>
 						<uni-icons type="bottom" size="14" color="#1E211F"></uni-icons>
 					</view>
-					<input class="input-field" type="number" placeholder="请输入你的手机号码" placeholder-class="placeholder-style"
+					<input class="input-field" type="number" :placeholder="$t('auth.placeholderPhone')" placeholder-class="placeholder-style"
 						v-model="formData.phone" />
 				</view>
 
 				<view class="input-group" v-if="currentTab === 1">
-					<input class="input-field" type="text" placeholder="请输入你的邮箱地址" placeholder-class="placeholder-style"
+					<input class="input-field" type="text" :placeholder="$t('auth.placeholderEmail')" placeholder-class="placeholder-style"
 						v-model="formData.email" />
 				</view>
 
 				<view class="input-group">
-					<input class="input-field" password placeholder="请输入你的账号密码" placeholder-class="placeholder-style"
+					<input class="input-field" password :placeholder="$t('auth.placeholderPassword')" placeholder-class="placeholder-style"
 						v-model="formData.password" />
 				</view>
 
 				<view class="action-links">
 					<view class="register-text">
-						还没账号？<text class="link-btn" @click="toRegister">去注册</text>
+						{{ $t('login.noAccount') }}<text class="link-btn" @click="toRegister">{{ $t('login.toRegister') }}</text>
 					</view>
-					<view class="forgot-pwd" @click="toForgot">忘记密码</view>
+					<view class="forgot-pwd" @click="toForgot">{{ $t('login.forgotPassword') }}</view>
 				</view>
 
-				<button class="login-btn" @click="handleLogin">立即登录</button>
+				<button class="login-btn" @click="handleLogin">{{ $t('login.loginBtn') }}</button>
 
 				<view class="agreement-section">
 					<radio :checked="isAgreed" @click="isAgreed = !isAgreed" color="#09AB4D" style="transform:scale(0.7)" />
 					<view class="agreement-text">
-						已阅读同意 <text class="doc">《服务使用协议》</text><text class="doc">《隐私政策》</text>
+						{{ $t('auth.agreePolicy') }}
+						<text class="doc">{{ $t('auth.servicePolicy') }}</text><text class="doc">{{ $t('auth.privacyPolicy') }}</text>
 					</view>
 				</view>
 			</view>
@@ -92,7 +93,7 @@ export default {
 		async handleLogin() {
 			if (!this.isAgreed) {
 				uni.showToast({
-					title: '请先同意用户协议',
+					title: this.$t('auth.pleaseAgreeFirst'),
 					icon: 'none'
 				});
 				return;
@@ -101,18 +102,18 @@ export default {
 			const { phone, email, password } = this.formData
 
 			if (!password) {
-				uni.showToast({ title: '请输入密码', icon: 'none' })
+				uni.showToast({ title: this.$t('auth.pleaseEnterPassword'), icon: 'none' })
 				return
 			}
 
-			uni.showLoading({ title: '登录中...' })
+			uni.showLoading({ title: this.$t('auth.logging') })
 
 			let res
 			if (this.currentTab === 0) {
 				// 手机号登录
 				if (!phone) {
 					uni.hideLoading()
-					uni.showToast({ title: '请输入手机号码', icon: 'none' })
+					uni.showToast({ title: this.$t('auth.pleaseEnterPhone'), icon: 'none' })
 					return
 				}
 				res = await userPasswordLogin({
@@ -126,7 +127,7 @@ export default {
 				// 邮箱登录
 				if (!email) {
 					uni.hideLoading()
-					uni.showToast({ title: '请输入邮箱地址', icon: 'none' })
+					uni.showToast({ title: this.$t('auth.pleaseEnterEmail'), icon: 'none' })
 					return
 				}
 				res = await userEmailLogin({
@@ -144,14 +145,11 @@ export default {
 				uni.setStorageSync('token', res.data.token)
 			}
 
-			uni.showToast({ title: '登录成功', icon: 'success' })
+			uni.showToast({ title: this.$t('auth.loginSuccess'), icon: 'success' })
 
 			setTimeout(() => {
 				uni.switchTab({ url: '/pages/index/index' })
 			}, 1500)
-		},
-		toForgot() {
-			console.log('Navigate to forgot password');
 		},
 		toRegister() {
 			uni.navigateTo({

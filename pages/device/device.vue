@@ -11,19 +11,19 @@
 					<text class="device-id">{{ device.deviceId }}</text>
 					<view class="status-tag">
 						<view class="dot" :class="{ offline: !device.connected }"></view>
-						<text>{{ device.connected ? '已连接' : '离线' }} | {{ device.time }}</text>
+						<text>{{ device.connected ? $t('device.connected') : $t('device.offline') }} | {{ device.time }}</text>
 					</view>
 				</view>
 				<view class="warning-tips">
-					<text>扫码/输入SN码，可获得积分，去</text>
-					<text class="link" @click="toAddConsumable">添加积分 ></text>
+					<text>{{ $t('deviceControl.scanTip') }}</text>
+					<text class="link" @click="toAddConsumable">{{ $t('deviceControl.addPoints') }}</text>
 				</view>
 			</view>
 
 			<view class="card" v-if="support.models">
-				<view class="card-title">设备模式</view>
+				<view class="card-title">{{ $t('deviceControl.deviceMode') }}</view>
 				<view class="mode-group">
-					<view v-for="(item, index) in models" :key="index" class="mode-item"
+					<view v-for="(item, index) in localizedModels" :key="index" class="mode-item"
 						:class="{ active: currentMode === index }" @click="setMode(index)">
 						{{ item }}
 					</view>
@@ -31,7 +31,7 @@
 			</view>
 
 			<view class="card" v-if="support.intensity">
-				<view class="card-title">设备强度</view>
+				<view class="card-title">{{ $t('deviceControl.deviceIntensity') }}</view>
 				<view class="intensity-control">
 					<view class="btn-minus" @click="changeIntensity(-1)"></view>
 					<view class="intensity-num">{{ intensity }}</view>
@@ -44,8 +44,8 @@
 						<view class="slider-thumb" :style="{ left: (intensity / 8) * 100 + '%' }"></view>
 					</view>
 					<view class="slider-labels">
-						<text>设备强度1</text>
-						<text>设备强度8</text>
+						<text>{{ $t('deviceControl.deviceIntensity') }}1</text>
+						<text>{{ $t('deviceControl.deviceIntensity') }}8</text>
 					</view>
 				</view>
 			</view>
@@ -60,17 +60,17 @@
 		<view class="bottom-actions">
 			<view class="action-item" @click="toAddConsumable">
 				<view class="action-icon-bg add-icon"></view>
-				<text>添加耗材</text>
+				<text>{{ $t('consumable.addConsumable') }}</text>
 			</view>
 			<view class="action-item main" v-if="support.start" @click="start">
 				<view class="start-btn" hover-class="hover">
 					<view class="power-icon"></view>
 				</view>
-				<text class="active-text">{{ status === 'stop' ? '开启仪器' : '关闭' }}</text>
+				<text class="active-text">{{ status === 'stop' ? $t('deviceControl.startDevice') : $t('deviceControl.stopDevice') }}</text>
 			</view>
 			<view class="action-item" @click="toConsumableList">
 				<view class="action-icon-bg record-icon"></view>
-				<text>耗材记录</text>
+				<text>{{ $t('consumable.consumableRecord') }}</text>
 			</view>
 		</view>
 	</view>
@@ -91,7 +91,7 @@ export default {
 	data() {
 		return {
 			type: '', // mask: 面膜 spray: 喷雾 bra: 文胸 importer: 导入仪
-			models: ['净化排毒', '脉冲导入', '紧致提升'],
+			modeKeys: ['purification', 'pulse', 'tightening'],
 			currentMode: 0,
 			intensity: 7,
 			isDragging: false,
@@ -101,18 +101,6 @@ export default {
 
 			//
 			status: 'stop', // stop starting
-		}
-	},
-	onLoad(options) {
-		this.type = options.type;
-		this.connect();
-	},
-	onShow() {
-	},
-	onUnload() {
-		// 页面卸载时停止设备
-		if (this.status === 'starting' && this.device && this.device.connect) {
-			setDeviceState(this.device.connect, 0);
 		}
 	},
 	computed: {
@@ -132,6 +120,21 @@ export default {
 				case 'spray': return { showAddConsumable };
 				case 'importer': return { showAddConsumable };
 			}
+		},
+		localizedModels() {
+			return this.modeKeys.map(key => this.$t(`deviceMode.${key}`))
+		}
+	},
+	onLoad(options) {
+		this.type = options.type;
+		this.connect();
+	},
+	onShow() {
+	},
+	onUnload() {
+		// 页面卸载时停止设备
+		if (this.status === 'starting' && this.device && this.device.connect) {
+			setDeviceState(this.device.connect, 0);
 		}
 	},
 	methods: {
@@ -143,7 +146,7 @@ export default {
 			// 校验
 			if (!this.device.connected) {
 				uni.showToast({
-					title: '请连接设备',
+					title: this.$t('device.pleaseConnectDevice'),
 					icon: 'error'
 				});
 				return;
@@ -153,14 +156,14 @@ export default {
 			const connect = this.device.connect;
 			if (this.status === 'starting') {
 				uni.showLoading({
-					title: '停止中...'
+					title: this.$t('deviceControl.stopping')
 				});
 				setDeviceState(connect, 0);
 				await new Promise(r => setTimeout(r, 500));
 				this.status = 'stop'
 			} else {
 				uni.showLoading({
-					title: '开启中...'
+					title: this.$t('deviceControl.starting')
 				});
 				setMassageIntensity(connect, this.intensity);
 				await new Promise(r => setTimeout(r, 500));
@@ -365,6 +368,7 @@ page {
 		margin-top: 30rpx;
 		font-size: 28rpx;
 		color: $black-2;
+		text-align: center;
 
 		.link {
 			color: $green-1;
