@@ -71,7 +71,7 @@
 		<view class="logout-wrapper">
 			<button class="logout-btn" border="false" @tap="handleLogout">{{ $t('me.logout') }}</button>
 		</view>
-		<custom-tab-bar active="me" :key="Date.now()" />
+		<custom-tab-bar active="me" :key="getLanguage()" />
 	</view>
 </template>
 
@@ -82,6 +82,7 @@ import {
 import points from '../../components/points.vue';
 import { getTokenBalance } from '../../utils/hst';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
+import { getLanguage } from '../../locale';
 
 export default {
 	components: {
@@ -125,6 +126,7 @@ export default {
 		}
 	},
 	methods: {
+		getLanguage: getLanguage,
 		async getUserInfo() {
 			const userInfo = await userGetInfo();
 			this.userInfo = userInfo.data;

@@ -33,9 +33,9 @@
 			<view class="card" v-if="support.intensity">
 				<view class="card-title">{{ $t('deviceControl.deviceIntensity') }}</view>
 				<view class="intensity-control">
-					<view class="btn-minus" @click="changeIntensity(-1)"></view>
+					<view class="btn-minus click-active" @click="changeIntensity(-1)"></view>
 					<view class="intensity-num">{{ intensity }}</view>
-					<view class="btn-plus" @click="changeIntensity(1)"></view>
+					<view class="btn-plus click-active" @click="changeIntensity(1)"></view>
 				</view>
 				<view class="slider-box">
 					<view class="slider-track" @touchstart="handleDragStart" @touchmove="handleDragMove"
@@ -59,17 +59,17 @@
 
 		<view class="bottom-actions">
 			<view class="action-item" @click="toAddConsumable">
-				<view class="action-icon-bg add-icon"></view>
+				<view class="action-icon-bg add-icon click-active"></view>
 				<text>{{ $t('consumable.addConsumable') }}</text>
 			</view>
 			<view class="action-item main" v-if="support.start" @click="start">
-				<view class="start-btn" hover-class="hover">
+				<view class="start-btn click-active-max">
 					<view class="power-icon"></view>
 				</view>
 				<text class="active-text">{{ status === 'stop' ? $t('deviceControl.startDevice') : $t('deviceControl.stopDevice') }}</text>
 			</view>
-			<view class="action-item" @click="toConsumableList">
-				<view class="action-icon-bg record-icon"></view>
+			<view class="action-item" @click="toConsumableList" >
+				<view class="action-icon-bg record-icon click-active"></view>
 				<text>{{ $t('consumable.consumableRecord') }}</text>
 			</view>
 		</view>
@@ -398,7 +398,7 @@ page {
 	justify-content: space-between;
 
 	.mode-item {
-		width: 190rpx;
+		width: 186rpx;
 		height: 88rpx;
 		background: $black-5;
 		border-radius: 12rpx;

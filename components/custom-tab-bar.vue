@@ -3,7 +3,7 @@
     <view
       v-for="item in list"
       :key="item.pagePath"
-      class="tab-item"
+      class="tab-item click-active"
       :class="{ active: activePage === item.pagePath }"
       @click="switchTab(item)"
     >

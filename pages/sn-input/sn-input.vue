@@ -13,7 +13,7 @@
 				{{ $t('snInput.description') }}
 			</view>
 
-			<button class="add-btn" @tap="handleAdd">{{ $t('snInput.addConsumable') }}</button>
+			<button class="add-btn click-active" @tap="handleAdd">{{ $t('snInput.addConsumable') }}</button>
 		</view>
 
 		<!-- 拟态弹窗 -->

@@ -5,7 +5,7 @@
 			<view class="mining-box">
 				<text class="label">{{ $t('index.miningProgress') }}</text>
 				<view class="value-row">
-					<text class="main-digit">{{ userInfo?.hst || '0.000000' }}</text>
+					<text class="main-digit">{{ point }}</text>
 					<text class="unit">HST</text>
 				</view>
 			</view>
@@ -25,45 +25,53 @@
 		</view>
 
 		<view class="grid-layout">
-			<view class="device-card bg-mask">
+			<view class="device-card bg-mask click-active">
 				<view class="card-content" @click="toDevice('mask')">
 					<text class="device-name">{{ getDeviceName('mask') }}</text>
 					<text class="device-intro">{{ $t('deviceDesc.mask') }}</text>
-					<view class="action-btn" style="background-color: #344D6C;">{{ maskDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
-					<text class="status-indicator" v-if="maskDevice">{{ maskDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ maskDevice.time }}</text>
+					<view class="action-btn" style="background-color: #344D6C;">{{ maskDevice ? $t('index.useDevice') :
+						$t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="maskDevice">{{ maskDevice.connected ? $t('device.connected') :
+						$t('device.offline') }} | {{ maskDevice.time }}</text>
 				</view>
 			</view>
 
-			<view class="device-card bg-spray">
+			<view class="device-card bg-spray click-activ">
 				<view class="card-content" @click="toDevice('spray')">
 					<text class="device-name">{{ getDeviceName('spray') }}</text>
 					<text class="device-intro">{{ $t('deviceDesc.spray') }}</text>
-					<view class="action-btn" style="background-color: #306738;">{{ sprayDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
-					<text class="status-indicator" v-if="sprayDevice">{{ sprayDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ sprayDevice.time }}</text>
+					<view class="action-btn" style="background-color: #306738;">{{ sprayDevice ? $t('index.useDevice') :
+						$t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="sprayDevice">{{ sprayDevice.connected ? $t('device.connected') :
+						$t('device.offline') }} | {{ sprayDevice.time }}</text>
 				</view>
 			</view>
 
-			<view class="device-card bg-bra">
+			<view class="device-card bg-bra click-active">
 				<view class="card-content" @click="toDevice('bra')">
 					<text class="device-name">{{ getDeviceName('bra') }}</text>
 					<text class="device-intro">{{ $t('deviceDesc.bra') }}</text>
-					<view class="action-btn" style="background-color: #4E346C;">{{ braDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
-					<text class="status-indicator muted" v-if="braDevice">{{ braDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ braDevice.time }}</text>
+					<view class="action-btn" style="background-color: #4E346C;">{{ braDevice ? $t('index.useDevice') :
+						$t('index.bindDevice') }}</view>
+					<text class="status-indicator muted" v-if="braDevice">{{ braDevice.connected ? $t('device.connected') :
+						$t('device.offline') }} | {{ braDevice.time }}</text>
 				</view>
 			</view>
 
-			<view class="device-card bg-beauty">
+			<view class="device-card bg-beauty click-active">
 				<view class="card-content" @click="toDevice('importer')">
 					<text class="device-name">{{ getDeviceName('importer') }}</text>
 					<text class="device-intro">{{ $t('deviceDesc.importer') }}</text>
-					<view class="action-btn" style="background-color: #673030;">{{ importerDevice ? $t('index.useDevice') : $t('index.bindDevice') }}</view>
-					<text class="status-indicator" v-if="importerDevice">{{ importerDevice.connected ? $t('device.connected') : $t('device.offline') }} | {{ importerDevice.time }}</text>
+					<view class="action-btn" style="background-color: #673030;">{{ importerDevice ? $t('index.useDevice') :
+						$t('index.bindDevice') }}</view>
+					<text class="status-indicator" v-if="importerDevice">{{ importerDevice.connected ? $t('device.connected') :
+						$t('device.offline') }} | {{ importerDevice.time }}</text>
 				</view>
 			</view>
 		</view>
 		<web-view v-if="token" v-show="false" :update-title="false" :fullscreen="false" src="/hybrid/html/index.html"
 			@message="handleWebViewMessage" />
-		<custom-tab-bar active="index" :key="Date.now()" />
+		<custom-tab-bar active="index" :key="getLanguage()" />
 	</view>
 </template>
 
@@ -74,6 +82,7 @@ import { toDevice } from '../../utils/toDevice';
 import { getDevice } from '../../utils/deivceManage';
 import { getDeviceName } from '../../utils/getDeviceName';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
+import { getLanguage } from '../../locale';
 
 export default {
 	components: {
@@ -95,6 +104,8 @@ export default {
 			sprayDevice: null,
 			braDevice: null,
 			importerDevice: null,
+
+			point: 0,
 		}
 	},
 	onShow() {
@@ -120,6 +131,7 @@ export default {
 		console.log(this.maskDevice)
 	},
 	methods: {
+		getLanguage: getLanguage,
 		getDeviceName: getDeviceName,
 		async getIndexBanner() {
 			if (!this.bannerList.length) {
@@ -142,24 +154,23 @@ export default {
 				return;
 			}
 
+
+
 			const totalJumpsNum = this.userInfo.totalJumpsNum;
+			const hst = Number(this.userInfo.hst || 0);
 			const seconds = 86400;
 			let sNum = totalJumpsNum / seconds;
 
-			// 计算今天已经过去的秒数
+			// 获取今天开始的时间
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
-			const now = new Date();
-			const passedSeconds = Math.floor((now - today) / 1000);
+			const todayTime = today.getTime();
 
-			// 计算当前应该有的hst
-			this.userInfo.hst = (Number(this.userInfo.hst || 0) + (sNum * passedSeconds)).toFixed(6);
-
-			if (sNum < 0.000001) {
-				sNum = 0.000001;
-			}
 			this.hstTimer = setInterval(() => {
-				this.userInfo.hst = (Number(this.userInfo.hst) + sNum).toFixed(6);
+				const now = Date.now();
+				const passedSeconds = Math.floor((now - todayTime) / 1000);
+				// 计算当前应该有的hst
+				this.point = Number(hst + (sNum * passedSeconds)).toFixed(6);
 			}, 1000);
 		},
 		toDevice: toDevice,
